@@ -29,7 +29,7 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 			if ( !$process_discounts ) {
 				continue;
 			}
-			
+
 			if ( !$this->is_cumulative( $cart_item, $cart_item_key ) ) {
 				if ( $this->is_item_discounted( $cart_item, $cart_item_key ) ) {
 					continue;
