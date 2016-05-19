@@ -1,4 +1,12 @@
 *** Dynamic Pricing Changelog ***
+2016.05.18 - version 2.11.0
+	* Update:  Add compatibility with WooCommerce Memberships when using discounts from Dynamic Pricing and Memberships. 
+	* Update:  Override rules on checkout when user creates an account while checking out.  This will cause wahtever rules they had applied
+			or not applied to still be correctly applied even if they create an account which would actually trigger rules for logged in users 
+			during the final order creation process.  This update changes that so rules applied on the checkout screen are the same which are applied
+			on order creation. 
+	* Note: WC 2.6 Ready
+
 2016.04.01 - version 2.10.13
 	* Update:  Disallow coupon use when an item is discounted with Dynamic Pricing and a coupon is set to exclude sale price items. 
 	

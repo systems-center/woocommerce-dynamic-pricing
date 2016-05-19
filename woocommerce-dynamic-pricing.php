@@ -4,11 +4,11 @@
   Plugin Name: WooCommerce Dynamic Pricing
   Plugin URI: http://www.woothemes.com/woocommerce
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 2.10.13
+  Version: 2.11.0
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3
-  Tested up to: 4.4
+  Tested up to: 4.5.2
 
   Copyright: © 2009-2016 Lucas Stark.
   License: GNU General Public License v3.0
@@ -172,24 +172,50 @@ class WC_Dynamic_Pricing {
 
 			add_filter( 'woocommerce_composite_get_price', array($this, 'on_get_price'), 10, 2 );
 			add_filter( 'woocommerce_composite_get_base_price', array($this, 'on_get_price'), 10, 2 );
-			
-			
-			add_filter('woocommerce_coupon_is_valid_for_product', array($this, 'check_coupon_is_valid'), 10, 4);
-			
+
+
+			add_filter( 'woocommerce_coupon_is_valid_for_product', array($this, 'check_coupon_is_valid'), 10, 4 );
+		}
+
+		if ( isset( $_POST['createaccount'] ) ) {
+			add_filter( 'woocommerce_dynamic_pricing_is_rule_set_valid_for_user', array($this, 'new_account_overrides'), 10, 2 );
 		}
 
 		add_filter( 'woocommerce_dynamic_pricing_get_rule_amount', array($this, 'convert_decimals'), 99, 4 );
 	}
 
-	public function check_coupon_is_valid( $valid, $product, $coupon, $values) {
-		
-		if ('yes' === $coupon->exclude_sale_items && isset($values['discounts']) && isset($values['discounts']['applied_discounts']) && !empty($values['discounts']['applied_discounts'])){ 
+	public function check_coupon_is_valid( $valid, $product, $coupon, $values ) {
+
+		if ( 'yes' === $coupon->exclude_sale_items && isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
 			$valid = false;
 		}
-		
+
 		return $valid;
 	}
-	
+
+	public function new_account_overrides( $result, $condition ) {
+		switch ( $condition['type'] ) {
+			case 'apply_to':
+				if ( is_array( $condition['args'] ) && isset( $condition['args']['applies_to'] ) ) {
+					if ( $condition['args']['applies_to'] == 'everyone' ) {
+						$result = 1;
+					} elseif ( $condition['args']['applies_to'] == 'unauthenticated' ) {
+						$result = 1; //The user wasn't logged in, but now will be.  Hardcode to true
+					} elseif ( $condition['args']['applies_to'] == 'authenticated' ) {
+						$result = 0;//The user wasn't logged in previously.
+					} elseif ( $condition['args']['applies_to'] == 'roles' && isset( $condition['args']['roles'] ) && is_array( $condition['args']['roles'] ) ) {
+						$result = 0;
+					}
+				}
+				break;
+			default:
+				$result = 0;
+				break;
+		}
+
+		return $result;
+	}
+
 	/**
 	 * Remove the price filter when mini-cart is triggered. 
 	 * @since 2.10.2
@@ -487,7 +513,7 @@ class WC_Dynamic_Pricing {
 	//Helper functions to modify the woocommerce cart.  Called from the individual modules.
 	public static function apply_cart_item_adjustment( $cart_item_key, $original_price, $adjusted_price, $module, $set_id ) {
 		global $woocommerce;
-
+		do_action( 'wc_memberships_discounts_disable_price_adjustments' );
 		$adjusted_price = apply_filters( 'wc_dynamic_pricing_apply_cart_item_adjustment', $adjusted_price, $cart_item_key, $original_price, $module );
 
 		if ( isset( $woocommerce->cart->cart_contents[$cart_item_key] ) ) {
@@ -536,7 +562,7 @@ class WC_Dynamic_Pricing {
 				$woocommerce->cart->cart_contents[$cart_item_key]['discounts']['applied_discounts'][] = $history;
 			}
 		}
-
+		do_action( 'wc_memberships_discounts_enable_price_adjustments' );
 		do_action( 'woocommerce_dynamic_pricing_apply_cartitem_adjustment', $cart_item_key, $original_price, $adjusted_price, $module, $set_id );
 	}
 
