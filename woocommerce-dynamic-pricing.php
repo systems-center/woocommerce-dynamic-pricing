@@ -4,7 +4,7 @@
   Plugin Name: WooCommerce Dynamic Pricing
   Plugin URI: http://www.woothemes.com/woocommerce
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 2.11.0
+  Version: 2.11.1
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3
@@ -165,6 +165,8 @@ class WC_Dynamic_Pricing {
 			add_filter( 'woocommerce_product_is_on_sale', array($this, 'on_get_product_is_on_sale'), 10, 2 );
 
 
+			add_filter( 'woocommerce_variation_prices_price', array($this, 'on_get_variation_prices_price'), 10, 3 );
+
 
 			add_filter( 'woocommerce_get_variation_price', array($this, 'on_get_variation_price'), 10, 4 );
 			add_filter( 'woocommerce_get_price_html', array(&$this, 'on_price_html'), 10, 2 );
@@ -202,7 +204,7 @@ class WC_Dynamic_Pricing {
 					} elseif ( $condition['args']['applies_to'] == 'unauthenticated' ) {
 						$result = 1; //The user wasn't logged in, but now will be.  Hardcode to true
 					} elseif ( $condition['args']['applies_to'] == 'authenticated' ) {
-						$result = 0;//The user wasn't logged in previously.
+						$result = 0; //The user wasn't logged in previously.
 					} elseif ( $condition['args']['applies_to'] == 'roles' && isset( $condition['args']['roles'] ) && is_array( $condition['args']['roles'] ) ) {
 						$result = 0;
 					}
@@ -349,6 +351,18 @@ class WC_Dynamic_Pricing {
 		}
 	}
 
+	/**
+	 * Filters the variation price from WC_Product_Variable->get_variation_prices()
+	 * @since 2.11.1
+	 * @param float $price
+	 * @param WC_Product_Variation $variation
+	 * @param WC_Product_Variable $variable
+	 * @return float
+	 */
+	public function on_get_variation_prices_price( $price, $variation, $variable ) {
+		return $this->get_discounted_price($price, $variation);
+	}
+
 	public function on_get_variation_price( $price, $product, $min_or_max, $display ) {
 		$min_price = $price;
 		$max_price = $price;
@@ -491,8 +505,15 @@ class WC_Dynamic_Pricing {
 
 		if ( $product->is_type( 'variable' ) ) {
 			$is_on_sale = false;
+
 			$prices = $product->get_variation_prices();
-			if ( $prices['price'] !== $prices['regular_price'] ) {
+			
+			$regular = array_map( 'strval', $prices['regular_price'] );
+			$actual_prices = array_map( 'strval', $prices['price'] );
+			
+			$diff = array_diff_assoc( $regular, $actual_prices );
+
+			if ( !empty( $diff ) ) {
 				$is_on_sale = true;
 			}
 		} else {
