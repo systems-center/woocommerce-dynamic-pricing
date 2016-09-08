@@ -1,4 +1,7 @@
 *** Dynamic Pricing Changelog ***
+2016.08.05 - version 2.11.6
+    * Fix:  Run on_get_price filter when is_shop is true.  Required since 2.11.2 when we removed the price HTML filters.
+
 2016.07.29 - version 2.11.5
     * Fix:  Installer issue on WC 2.5.5 and below.
     * New:  Filter to get custom pricing rules for a cart item when using advanced product discounts.  Filter was added
