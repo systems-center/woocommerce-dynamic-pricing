@@ -4,7 +4,7 @@
   Plugin Name: WooCommerce Dynamic Pricing
   Plugin URI: http://www.woothemes.com/woocommerce
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 2.11.5
+  Version: 2.11.6
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3
@@ -306,7 +306,7 @@ class WC_Dynamic_Pricing {
 		$composite_ajax = did_action( 'wp_ajax_woocommerce_show_composited_product' ) | did_action( 'wp_ajax_nopriv_woocommerce_show_composited_product' ) | did_action( 'wc_ajax_woocommerce_show_composited_product' );
 
 		//Is Product check so this does not run on the cart page.  Cart items are discounted when loaded from session.
-		if ( is_product() || is_tax() || $force_calculation || $composite_ajax ) {
+		if ((function_exists('is_shop') && is_shop()) || is_product() || is_tax() || $force_calculation || $composite_ajax ) {
 			$id = isset( $_product->variation_id ) ? $_product->variation_id : $_product->id;
 			$discount_price = false;
 			$working_price = isset( $this->discounted_products[$id] ) ? $this->discounted_products[$id] : $base_price;
