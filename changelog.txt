@@ -1,4 +1,18 @@
 *** Dynamic Pricing Changelog ***
+2016.11.15 - version 2.12.0
+    * Update: Added a custom integration for WooCommerce Memberships to allow membership discounts to be applied before Dynamic Pricing discounts.
+                The default is that Memberships will apply discounts on top of anything Dynamic Pricing has already done.  This update allows you to change this by
+                using the following filter.   To use this add it to your functions file, or elsewhere you have custom code.
+
+                add_filter('wc_dynamic_pricing_apply_membership_discounts_first', '__return_true');
+
+2016.11.03 - version 2.11.8
+    * Update:  Use local date time for dynamic pricing date time and set the start time to 00:00:00.
+
+2016.08.29 - version 2.11.7
+    * Fix:  Run on_get_price filter for product shortcodes.  Required since 2.11.2 when we removed the price HTML filters.
+    * Update:  Disable cart coupons which are set to exclude sale price items.
+
 2016.08.05 - version 2.11.6
     * Fix:  Run on_get_price filter when is_shop is true.  Required since 2.11.2 when we removed the price HTML filters.
 
