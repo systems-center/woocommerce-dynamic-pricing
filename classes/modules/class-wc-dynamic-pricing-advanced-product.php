@@ -21,6 +21,7 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 		foreach ( $temp_cart as $cart_item_key => $values ) {
 			$temp_cart[$cart_item_key] = $values;
 			$temp_cart[$cart_item_key]['available_quantity'] = $values['quantity'];
+			$temp_cart[$cart_item_key]['available_quantity'] = $values['quantity'];
 		}
 
 

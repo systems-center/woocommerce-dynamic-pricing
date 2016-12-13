@@ -68,7 +68,7 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 					$price_adjusted = false;
 					$applied_rule = false;
 					$applied_rule_set = false;
-					$applied_rule_set_id;
+					$applied_rule_set_id = false;
 
 					foreach ( $this->available_rulesets as $set_id => $pricing_rule_set ) {
 
@@ -219,9 +219,9 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 
 				if ( isset( $pricing_rule_set['date_from'] ) && isset( $pricing_rule_set['date_to'] ) ) {
 					// Check date range
-					$from_date = strtotime( $pricing_rule_set['date_from'] );
-					$to_date = strtotime( $pricing_rule_set['date_to'] );
-					$now = current_time( 'timestamp' );
+					$from_date = empty($pricing_rule_set['date_from']) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime($pricing_rule_set['date_from']), false ) );
+					$to_date   = empty($pricing_rule_set['date_to']) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime($pricing_rule_set['date_to']), false ) );
+					$now       = current_time( 'timestamp' );
 
 					if ( $from_date && $to_date && !( $now >= $from_date && $now <= $to_date ) ) {
 						$execute_rules = false;
