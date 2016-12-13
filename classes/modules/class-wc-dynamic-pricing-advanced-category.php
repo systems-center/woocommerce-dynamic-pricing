@@ -229,7 +229,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 							if ( isset( $collector['args'] ) && isset( $collector['args']['cats'] ) && is_array( $collector['args']['cats'] ) ) {
 								foreach ( $temp_cart as $lck => $l_cart_item ) {
 
-									if ( is_object_in_term( $l_cart_item['product_id'], 'product_cat', $collector['args']['cats'] ) ) {
+									if (apply_filters('woocommerce_dynamic_pricing_is_object_in_terms',  is_object_in_term( $l_cart_item['product_id'], 'product_cat', $collector['args']['cats'] ), $l_cart_item['product_id'], $collector['args']['cats'] ) ) {
 										if ( apply_filters( 'woocommerce_dynamic_pricing_count_categories_for_cart_item', true, $l_cart_item, $lck ) ) {
 											$q += (int) $l_cart_item['quantity'];
 										}
