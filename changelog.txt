@@ -1,4 +1,16 @@
 *** Dynamic Pricing Changelog ***
+2016.12.29 - version 2.12.2
+    * Fix:  Fix issue when using multiple rules, with role selection and selecting a label from one rule set selected the role from another.  #23
+    * Fix:  Fix issue where the dates for advanced category rules were not respected in the shop page.
+    * Fix:  Fix issue with Composite Products support where prices in the cart were displayed as 0.
+    * Update:  Cache product discounts from the store so it does not have to be re-calculated every single time.
+
+2016.12.07 - version 2.12.1
+    * New:  Allow the use of Product Brands to be used to configure discounts.  Both simple brand and advanced brand discounts are available to configure
+    * Update:  Allow the memberships first configuration to work with Advanced Category rules in addition to Advanced Product Rules.
+    * Fix:  Correct an issue where a user was logged out and was not receiving regular discounts when using Memberships in conjunction with processing membership rules first.
+    * Update:  Clear the cart counter when empty cart is triggered.  Resolves issues with quantities being incorrect if manually loading a cart from saved data.
+
 2016.11.15 - version 2.12.0
     * Update: Added a custom integration for WooCommerce Memberships to allow membership discounts to be applied before Dynamic Pricing discounts.
                 The default is that Memberships will apply discounts on top of anything Dynamic Pricing has already done.  This update allows you to change this by

@@ -247,6 +247,7 @@ class woocommerce_product_pricing_rules_admin {
 		}
 		$all_roles = $wp_roles->roles;
 		$div_style = ($condition['args']['applies_to'] != 'roles') ? 'display:none;' : '';
+		$uid = esc_attr(uniqid('', true));
 		?>
 
 		<div>
@@ -268,8 +269,8 @@ class woocommerce_product_pricing_rules_admin {
 						<?php foreach ( $chunk as $role_id => $role ) : ?>
 							<?php $role_checked = (isset( $condition['args']['roles'] ) && is_array( $condition['args']['roles'] ) && in_array( $role_id, $condition['args']['roles'] )) ? 'checked="checked"' : ''; ?>
 							<li>
-								<label for="role_<?php echo $role_id; ?>" class="selectit">
-									<input <?php echo $role_checked; ?> type="checkbox" id="role_<?php echo $role_id; ?>" name="pricing_rules[<?php echo $name; ?>][conditions][<?php echo $condition_index; ?>][args][roles][]" value="<?php echo $role_id; ?>" /><?php echo $role['name']; ?>
+								<label for="role_<?php echo $role_id . '_' . $uid; ?>" class="selectit">
+									<input <?php echo $role_checked; ?> type="checkbox" id="role_<?php echo $role_id . '_' . $uid; ?>" name="pricing_rules[<?php echo $name; ?>][conditions][<?php echo $condition_index; ?>][args][roles][]" value="<?php echo $role_id; ?>" /><?php echo $role['name']; ?>
 								</label>
 							</li>
 						<?php endforeach; ?>

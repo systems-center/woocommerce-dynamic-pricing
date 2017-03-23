@@ -1,24 +1,31 @@
 <?php
 
-class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_Base {
+class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_Base {
 
-	private static $instance;
+	private static $instances;
 
-	public static function instance() {
-		if ( self::$instance == null ) {
-			self::$instance = new WC_Dynamic_Pricing_Advanced_Category( 'advanced_category' );
+	public static function instance($taxonomy = 'product_brand') {
+		if ( self::$instances == null ) {
+		    self::$instances = array();
 		}
-		return self::$instance;
+
+		if (!isset(self::$instances[$taxonomy])){
+            self::$instances[$taxonomy] = new WC_Dynamic_Pricing_Advanced_Taxonomy( 'advanced_taxonomy_' . $taxonomy, $taxonomy );
+        }
+
+		return self::$instances[$taxonomy];
 	}
 
 	public $adjustment_sets;
+    public $taxonomy;
 
-	public function __construct( $module_id ) {
+	public function __construct( $module_id, $taxonomy = 'product_brand' ) {
+	    $this->taxonomy = $taxonomy;
 		parent::__construct( $module_id );
-		$sets = get_option( '_a_category_pricing_rules' );
+		$sets = get_option( '_a_taxonomy_' . $this->taxonomy . '_pricing_rules'  );
 		if ( $sets && is_array( $sets ) && sizeof( $sets ) > 0 ) {
 			foreach ( $sets as $id => $set_data ) {
-				$obj_adjustment_set = new WC_Dynamic_Pricing_Adjustment_Set_Category( $id, $set_data );
+				$obj_adjustment_set = new WC_Dynamic_Pricing_Adjustment_Set_Taxonomy( $id, $set_data, $this->taxonomy );
 				$this->adjustment_sets[$id] = $obj_adjustment_set;
 			}
 		}
@@ -61,7 +68,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 				$q = 0;
 				if ( isset( $collector['args'] ) && isset( $collector['args']['cats'] ) && is_array( $collector['args']['cats'] ) ) {
 					foreach ( $collector['args']['cats'] as $cat_id ) {
-						$q += WC_Dynamic_Pricing_Counter::get_category_count( $cat_id );
+						$q += WC_Dynamic_Pricing_Counter::get_taxonomy_count( $cat_id, $this->taxonomy );
 					}
 				} else {
 					continue; //no categories
@@ -84,7 +91,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 				$mq = 0; //matched mixed quantity;
 
 				foreach ( $temp_cart as $cart_item_key => &$cart_item ) {
-					$terms = wp_get_post_terms( $cart_item['product_id'], 'product_cat', array('fields' => 'ids') );
+					$terms = wp_get_post_terms( $cart_item['product_id'], $this->taxonomy, array('fields' => 'ids') );
 					if ( count( array_intersect( $collector['args']['cats'], $terms ) ) > 0 ) {
 						if ( count( array_intersect( $targets, $terms ) ) > 0 ) {
 							$mq += $cart_item['available_quantity'];
@@ -163,7 +170,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 							continue;
 						}
 						
-						$terms = wp_get_post_terms( $ctitem['product_id'], 'product_cat', array('fields' => 'ids') );
+						$terms = wp_get_post_terms( $ctitem['product_id'], $this->taxonomy, array('fields' => 'ids') );
 						if ( count( array_intersect( $targets, $terms ) ) > 0 ) {
 
 							$price_adjusted = $this->get_block_adjusted_price( $ctitem, $original_price, $rule, $tt );
@@ -177,7 +184,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 							}
 
 							if ( $price_adjusted !== false && floatval( $original_price ) != floatval( $price_adjusted ) ) {
-								WC_Dynamic_Pricing::apply_cart_item_adjustment( $cart_item_key, $original_price, $price_adjusted, 'advanced_category', $set_id );
+								WC_Dynamic_Pricing::apply_cart_item_adjustment( $cart_item_key, $original_price, $price_adjusted, 'advanced_' . $this->taxonomy, $set_id );
 							}
 						}
 					}
@@ -208,12 +215,12 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 				$q = 0;
 				foreach ( $temp_cart as $t_cart_item_key => $t_cart_item ) {
 
-					$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $t_cart_item['data'], 'advanced_category', $this, $t_cart_item );
+					$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $t_cart_item['data'], 'advanced_' . $this->taxonomy, $this, $t_cart_item );
 					if ( !$process_discounts ) {
 						continue;
 					}
 
-					$terms = wp_get_post_terms( $t_cart_item['product_id'], 'product_cat', array('fields' => 'ids') );
+					$terms = wp_get_post_terms( $t_cart_item['product_id'], $this->taxonomy, array('fields' => 'ids') );
 					if ( count( array_intersect( $targets, $terms ) ) > 0 ) {
 						if ( !$this->is_cumulative( $t_cart_item, $t_cart_item_key ) ) {
 							if ( $this->is_item_discounted( $t_cart_item, $t_cart_item_key ) ) {
@@ -228,8 +235,8 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 							if ( isset( $collector['args'] ) && isset( $collector['args']['cats'] ) && is_array( $collector['args']['cats'] ) ) {
 								foreach ( $temp_cart as $lck => $l_cart_item ) {
 
-									if (apply_filters('woocommerce_dynamic_pricing_is_object_in_terms',  is_object_in_term( $l_cart_item['product_id'], 'product_cat', $collector['args']['cats'] ), $l_cart_item['product_id'], $collector['args']['cats'] ) ) {
-										if ( apply_filters( 'woocommerce_dynamic_pricing_count_categories_for_cart_item', true, $l_cart_item, $lck ) ) {
+									if (apply_filters('woocommerce_dynamic_pricing_is_object_in_terms',  is_object_in_term( $l_cart_item['product_id'], $this->taxonomy, $collector['args']['cats'] ), $l_cart_item['product_id'], $collector['args']['cats'] ) ) {
+										if ( apply_filters( 'woocommerce_dynamic_pricing_count_' . $this->taxonomy . '_for_cart_item', true, $l_cart_item, $lck ) ) {
 											$q += (int) $l_cart_item['quantity'];
 										}
 									}
@@ -251,7 +258,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 						}
 
 						if ( $price_adjusted !== false && floatval( $original_price ) != floatval( $price_adjusted ) ) {
-							WC_Dynamic_Pricing::apply_cart_item_adjustment( $t_cart_item_key, $original_price, $price_adjusted, 'advanced_category', $set_id );
+							WC_Dynamic_Pricing::apply_cart_item_adjustment( $t_cart_item_key, $original_price, $price_adjusted, 'advanced_' . $this->taxonomy, $set_id );
 						}
 					}
 				}
@@ -362,5 +369,3 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 	}
 
 }
-
-?>

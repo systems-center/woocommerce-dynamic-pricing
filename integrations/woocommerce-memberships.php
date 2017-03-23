@@ -54,18 +54,28 @@ class WC_Dynamic_Pricing_Memberships_Integration {
 	 * @return float|null
 	 */
 	public function on_get_price_to_discount( $base_price, $cart_item ) {
-		if ( apply_filters( 'wc_dynamic_pricing_apply_membership_discounts_first', false, $cart_item['data'], get_current_user_id() ) ) {
-			//Get the discounted price from memberships as the base price for all calculations on the product.
-			$this->remove_membership_filter();
+        $calculated_price = null;
+	    if ( apply_filters( 'wc_dynamic_pricing_apply_membership_discounts_first', false, $cart_item['data'], get_current_user_id() ) ) {
+            //Get the discounted price from memberships as the base price for all calculations on the product.
 
-			$base_price = wc_memberships()->get_member_discounts_instance()->get_discounted_price( $base_price, $cart_item['data'] );
+            $cart_item = WC_Dynamic_Pricing_Context::instance()->get_cart_item_for_product($cart_item['data']);
 
-			$this->add_membership_filter();
-			//Normally we would have the issue of this getting calculated twice since memberships would also get_discounted_price later, however,
-			//since we are able to disable the membership calculation ( since it's already been performed ) we can avoid this.
-		}
+            if (isset($cart_item['discounts'])) {
+                //Memberships discount has already been calculated.
+                $calculated_price = $cart_item['discounts']['price_base'];
+            } else {
 
-		return $base_price;
+                $this->remove_membership_filter();
+
+                $calculated_price = wc_memberships()->get_member_discounts_instance()->get_discounted_price($base_price, $cart_item['data']);
+
+                $this->add_membership_filter();
+                //Normally we would have the issue of this getting calculated twice since memberships would also get_discounted_price later, however,
+                //since we are able to disable the membership calculation ( since it's already been performed ) we can avoid this.
+            }
+        }
+
+        return empty($calculated_price) ? $base_price : $calculated_price;
 	}
 
 

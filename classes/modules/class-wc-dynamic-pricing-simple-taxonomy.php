@@ -1,25 +1,32 @@
 <?php
 
-class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base {
+class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base {
 
-	private static $instance;
+    private static $instances;
 
-	public static function instance() {
-		if ( self::$instance == null ) {
-			self::$instance = new WC_Dynamic_Pricing_Simple_Category( 'simple_category' );
-		}
+    public static function instance($taxonomy = 'product_brand') {
+        if ( self::$instances == null ) {
+            self::$instances = array();
+        }
 
-		return self::$instance;
-	}
+        if (!isset(self::$instances[$taxonomy])){
+            self::$instances[$taxonomy] = new WC_Dynamic_Pricing_Simple_Taxonomy( 'simple_taxonomy_' . $taxonomy, $taxonomy );
+        }
+
+        return self::$instances[$taxonomy];
+    }
 
 	public $available_advanced_rulesets = array();
 
-	public function __construct( $module_id ) {
+	public $taxonomy = '';
+
+	public function __construct( $module_id, $taxonomy ) {
+	    $this->taxonomy = $taxonomy;
 		parent::__construct( $module_id );
 	}
 
 	public function initialize_rules() {
-		$pricing_rule_sets = get_option( '_s_category_pricing_rules', array() );
+		$pricing_rule_sets = get_option( '_s_taxonomy_' . $this->taxonomy . '_pricing_rules', array() );
 
 		if ( is_array( $pricing_rule_sets ) && sizeof( $pricing_rule_sets ) > 0 ) {
 			foreach ( $pricing_rule_sets as $set_id => $pricing_rule_set ) {
@@ -46,7 +53,7 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 			}
 		}
 
-		$pricing_rule_sets = get_option( '_a_category_pricing_rules', array() );
+		$pricing_rule_sets = get_option( '_a_taxonomy_' . $this->taxonomy . '_pricing_rules', array() );
 		if ( is_array( $pricing_rule_sets ) && sizeof( $pricing_rule_sets ) > 0 ) {
 			foreach ( $pricing_rule_sets as $set_id => $pricing_rule_set ) {
 
@@ -70,8 +77,8 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 
 				if ( isset( $pricing_rule_set['date_from'] ) && isset( $pricing_rule_set['date_to'] ) ) {
 					// Check date range
-					$from_date = empty( $pricing_rule_set['date_from'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $pricing_rule_set['date_from'] ), false ) );
-					$to_date   = empty( $pricing_rule_set['date_to'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $pricing_rule_set['date_to'] ), false ) );
+					$from_date = empty( $this->set_data['date_from'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $this->set_data['date_from'] ), false ) );
+					$to_date   = empty( $this->set_data['date_to'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $this->set_data['date_to'] ), false ) );
 					$now       = current_time( 'timestamp' );
 
 					if ( $from_date && $to_date && ! ( $now >= $from_date && $now <= $to_date ) ) {
@@ -96,7 +103,7 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 		if ( $this->available_rulesets && count( $this->available_rulesets ) ) {
 
 			foreach ( $cart as $cart_item_key => $cart_item ) {
-				$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'simple_category', $this, $cart_item );
+				$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'simple_taxonomy_' . $this->taxonomy, $this, $cart_item );
 				if ( ! $process_discounts ) {
 					continue;
 				}
@@ -114,7 +121,7 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 				$price_adjusted   = false;
 				$applied_rule     = false;
 				$applied_rule_set = false;
-				$applied_rule_set_id;
+				$applied_rule_set_id = null;
 
 				foreach ( $this->available_rulesets as $set_id => $pricing_rule_set ) {
 
@@ -147,7 +154,7 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 		$process_discounts = false;
 		if ( ( isset( $this->available_rulesets ) && count( $this->available_rulesets ) > 0 ) || isset( $this->available_advanced_rulesets ) && count( $this->available_advanced_rulesets ) ) {
 			if ( $cat_id ) {
-				$process_discounts = is_object_in_term( $_product->id, 'product_cat', $cat_id );
+				$process_discounts = is_object_in_term( $_product->id, $this->taxonomy, $cat_id );
 			}
 		}
 
@@ -228,7 +235,7 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 		if ( $rulesets && count( $rulesets ) ) {
 			foreach ( $rulesets as $set_id => $pricing_rule_set ) {
 				if ( ! isset( $pricing_rule_set['mode'] ) || ( isset( $pricing_rule_set['mode'] ) && $pricing_rule_set['mode'] != 'block' ) ) {
-					$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $_product, 'simple_category', $this, array( 'data' => $_product ) );
+					$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $_product, 'simple_taxonomy_' . $this->taxonomy, $this, array( 'data' => $_product ) );
 					if ( $process_discounts ) {
 						//Grab targets from advanced category discounts so we properly show 0 based discounts for targets, not for the collector category values. 
 						$cats_to_check = isset( $pricing_rule_set['targets'] ) ? array_map( 'intval', $pricing_rule_set['targets'] ) : $pricing_rule_set['collector']['args']['cats'][0];
@@ -262,5 +269,3 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 	}
 
 }
-
-?>
