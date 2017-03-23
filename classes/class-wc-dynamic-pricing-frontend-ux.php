@@ -36,6 +36,11 @@ class WC_Dynamic_Pricing_FrontEnd_UX {
 					$price_to_calculate = $cart_item['data']->price;
 				}
 
+                if ( $price_to_calculate == $_product->get_price() ) {
+                    //TODO:  Correct this for memberships.
+                    //return $html;
+                }
+
 				$price_adjusted = get_option( 'woocommerce_tax_display_cart' ) == 'excl' ? $_product->get_price_excluding_tax(1, $price_to_calculate) : $_product->get_price_including_tax(1, $price_to_calculate);
 				$price_base = $cart_item['discounts']['display_price'];
 			} else {
