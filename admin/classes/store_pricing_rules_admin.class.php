@@ -7,13 +7,15 @@ class woocommerce_store_pricing_rules_admin {
 	public $totals_admin;
 	public $group_admin;
 
+	public $taxonomy_admins = array();
+
 	public function __construct() {
 
 		$this->category_admin = new woocommerce_category_pricing_rules_admin();
 		$this->membership_admin = new woocommerce_membership_pricing_rules_admin();
 		$this->group_admin = new woocommerce_group_pricing_rules_admin();
 		$this->totals_admin = new woocommerce_totals_pricing_rules_admin();
-
+        $this->taxonomy_admins['product_brand'] = new woocommerce_taxonomy_pricing_rules_admin('product_brand');
 
 		if ( is_admin() ) {
 			add_action( 'admin_enqueue_scripts', array(&$this, 'enqueue') );
@@ -30,7 +32,7 @@ class woocommerce_store_pricing_rules_admin {
 	}
 
 	public function enqueue( $hook ) {
-		global $post, $woocommerce;
+		global $post, $woocommerce, $wp_scripts;
 		if ( $hook == 'woocommerce_page_wc_dynamic_pricing' || ( $post && $post->post_type == 'product') ) {
 			if ( floatval( $woocommerce->version ) >= 2.0 ) {
 				wp_enqueue_style( 'woocommerce-pricing-admin', WC_Dynamic_Pricing::plugin_url() . '/assets/admin/admin.css' );
@@ -102,6 +104,22 @@ class woocommerce_store_pricing_rules_admin {
 					);
 				}
 
+				if (wc_dynamic_pricing_is_brands_active()){
+                    $tabs['brands'] = array(
+                        array(
+                            'title' => __( 'Brand Pricing', 'wc_pricing' ),
+                            'description' => 'Use bulk brand pricing to configure bulk price adjustments based on a product\'s brand. Brand pricing rules will apply before Membership (role-based pricing discounts), and will be cumulative with any Membership rules by default.   The cumulative filter can be used to change this behavior.',
+                            'function' => 'basic_brand_tab'
+                        ),
+                        array(
+                            'title' => __( 'Advanced Brand Pricing', 'wc_pricing' ),
+                            'description' => 'Use advanced brand pricing to configure price adjustments on items in a customers cart based on quantities.  Adjustments are calculated when the rule matches the configured quantities and will be applied to all items in the cart matching the selected brand.   
+					     Advanced category adjustments take precedence over bulk brand adjustments.',
+                            'function' => 'advanced_brand_tab'
+                        )
+                    );
+                }
+
 				foreach ( $tabs as $name => $value ) :
 					echo '<a href="' . admin_url( 'admin.php?page=wc_dynamic_pricing&tab=' . $name ) . '" class="nav-tab ';
 					if ( $current_tab == $name )
@@ -158,19 +176,31 @@ class woocommerce_store_pricing_rules_admin {
 		$this->category_admin->advanced_meta_box();
 	}
 
+    public function basic_brand_tab() {
+        $this->taxonomy_admins['product_brand']->basic_meta_box();
+    }
+
+    public function advanced_brand_tab() {
+        $this->taxonomy_admins['product_brand']->advanced_meta_box();
+    }
+
 	public function totals_tab() {
 		$this->totals_admin->advanced_metabox();
 	}
 
 	public function register_settings() {
-		register_setting( '_s_membership_pricing_rules', '_s_membership_pricing_rules', array(&$this, 'on_store_settings_validation') );
-		register_setting( '_s_group_pricing_rules', '_s_group_pricing_rules', array(&$this, 'on_store_settings_validation') );
+		register_setting( '_s_membership_pricing_rules', '_s_membership_pricing_rules', array($this, 'on_store_settings_validation') );
+		register_setting( '_s_group_pricing_rules', '_s_group_pricing_rules', array($this, 'on_store_settings_validation') );
 
-		register_setting( '_a_category_pricing_rules', '_a_category_pricing_rules', array(&$this, 'on_category_settings_validation') );
-		register_setting( '_s_category_pricing_rules', '_s_category_pricing_rules', array(&$this, 'on_store_settings_validation') );
+		register_setting( '_a_category_pricing_rules', '_a_category_pricing_rules', array($this, 'on_category_settings_validation') );
+		register_setting( '_s_category_pricing_rules', '_s_category_pricing_rules', array($this, 'on_store_settings_validation') );
 
-		register_setting( '_a_totals_pricing_rules', '_a_totals_pricing_rules', array(&$this, 'on_totals_settings_validation') );
-	}
+		register_setting( '_a_totals_pricing_rules', '_a_totals_pricing_rules', array($this, 'on_totals_settings_validation') );
+
+        register_setting( '_a_taxonomy_product_brand_pricing_rules', '_a_taxonomy_product_brand_pricing_rules', array($this, 'on_product_brand_settings_validation') );
+        register_setting( '_s_taxonomy_product_brand_pricing_rules', '_s_taxonomy_product_brand_pricing_rules', array($this, 'on_store_settings_validation') );
+
+    }
 
 	public function on_store_settings_validation( $data ) {
 		$pricing_rules = array();
@@ -273,6 +303,79 @@ class woocommerce_store_pricing_rules_admin {
 
 		return $data;
 	}
+
+    public function on_product_brand_settings_validation( $data ) {
+        $pricing_rules = array();
+        $rules = array();
+        if ( isset( $_POST['pricing_rules'] ) ) {
+            $pricing_rule_sets = $_POST['pricing_rules'];
+            foreach ( $pricing_rule_sets as $key => $rule_set ) {
+                $rules[$key] = $rule_set;
+            }
+            $data = $rules;
+        } else {
+            $data = array();
+        }
+
+        return $data;
+
+
+        $pricing_rules = array();
+        $rules = array();
+        $message = '';
+
+
+        if ( isset( $_POST['pricing_rules'] ) ) {
+            $pricing_rule_sets = $_POST['pricing_rules'];
+            foreach ( $pricing_rule_sets as $key => $rule_set ) {
+
+                if ( $rule_set['rules_type'] == 'block' ) {
+                    $valid = true;
+                    $rules[$key] = $rule_set;
+                    $data = $rules;
+                } else {
+                    $valid = true;
+                    foreach ( $rule_set['rules'] as $rule ) {
+                        if ( isset( $rule['adjust'] ) && !empty( $rule['adjust'] ) && isset( $rule['from'] ) && isset( $rule['amount'] ) && !empty( $rule['from'] ) && !empty( $rule['amount'] ) ) {
+
+                            if ( $rule['from'] != '*' && $rule['adjust'] != '*' && intval( $rule['adjust'] ) < intval( $rule['from'] ) ) {
+                                $valid = $valid & false;
+                                $message .= 'Invalid quantities configured';
+                            } else {
+                                $valid = $valid & true;
+                            }
+                        } else {
+                            $valid = $valid & false;
+                            $message .= 'You must enter values for all quantity and amount fields';
+                        }
+                    }
+
+                    if ( $valid ) {
+
+                        if ( isset( $rule_set['invalid'] ) ) {
+                            unset( $rules_set['invalid'] );
+                        }
+
+                        $rules[$key] = $rule_set;
+                    } else {
+                        $rule_set['invalid'] = $message;
+                        $rules[$key] = $rule_set;
+
+                        add_settings_error( '_a_taxonomy_product_brand_pricing_rules', 'category-rule-invalid', $rule_set['invalid'] );
+                    }
+
+                    $data = $rules;
+                }
+            }
+        } else {
+
+            $data = array();
+        }
+
+        $this->clear_transients();
+
+        return $data;
+    }
 
 	public function on_totals_settings_validation( $data ) {
 		$pricing_rules = array();
