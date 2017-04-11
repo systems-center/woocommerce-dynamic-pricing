@@ -1,4 +1,15 @@
 *** Dynamic Pricing Changelog ***
+2017.04.04 - version 3.0.1
+    * Fix:  Correct issue with invalid WC 3.0 delete_meta method.
+    * Fix:  Correct issue with invalid WC 3.0 update_meta method.
+    * Fix:  Correct deprecated get_product warning in admin.
+    
+2017.03.28 - version 3.0.0
+    * Update:  Front End WC 2.7 Ready
+
+2017.02.15 - version 2.12.3
+    * Fix:  Fix issue where Product Brand discounts would not calculate when using advanced rules and having more than one quantity in the cart.
+
 2016.12.29 - version 2.12.2
     * Fix:  Fix issue when using multiple rules, with role selection and selecting a label from one rule set selected the role from another.  #23
     * Fix:  Fix issue where the dates for advanced category rules were not respected in the shop page.

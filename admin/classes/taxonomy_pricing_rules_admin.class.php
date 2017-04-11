@@ -23,7 +23,7 @@ class woocommerce_taxonomy_pricing_rules_admin {
 		global $woocommerce;
 		if ( $hook == 'woocommerce_page_wc_dynamic_pricing' ) {
 			wp_enqueue_script( 'woocommerce_admin' );
-			wp_enqueue_style( 'woocommerce_admin_styles', $woocommerce->plugin_url() . '/assets/css/admin.css' );
+			wp_enqueue_style( 'woocommerce_admin_styles', WC()->plugin_url() . '/assets/css/admin.css' );
 		}
 	}
 
@@ -43,7 +43,7 @@ class woocommerce_taxonomy_pricing_rules_admin {
 		    'mode' => 'Bulk rules allow you to configure a bulk discount based on specific quantities the user purchases, such as buy 5 items receive a 10% discount.  Special offers allow you to configure rules such as buy one get one free.'
 		);
 
-		echo '<img class="help_tip" data-tip="' . esc_attr( $tips[$key] ) . '" src="' . $woocommerce->plugin_url() . '/assets/images/help.png" height="16" width="16" />';
+		echo '<img class="help_tip" data-tip="' . esc_attr( $tips[$key] ) . '" src="' . WC()->plugin_url() . '/assets/images/help.png" height="16" width="16" />';
 	}
 
 	public function basic_meta_box() {

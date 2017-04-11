@@ -352,7 +352,13 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 					$result = round( floatval( $price ) - ( floatval( $rule['amount'] ) * $price), (int) $num_decimals );
 					break;
 				case 'fixed_price':
-					$result = round( $rule['amount'], (int) $num_decimals );
+					if ( isset( $cart_item['_gform_total'] ) ) {
+						$amount = floatval( $rule['amount'] ) + floatval( $cart_item['_gform_total'] );
+					} else {
+						$amount = floatval( $rule['amount'] );
+					}
+
+					$result = round( $amount, (int) $num_decimals );
 					break;
 				default:
 					$result = false;

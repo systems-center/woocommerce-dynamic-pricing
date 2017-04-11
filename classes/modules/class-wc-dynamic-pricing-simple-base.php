@@ -21,14 +21,14 @@ abstract class WC_Dynamic_Pricing_Simple_Base extends WC_Dynamic_Pricing_Module_
 		//Check to make sure the item has not already been discounted by this module.  This could happen if update_totals is called more than once in the cart. 
 
 		$cumulative = null;
-		if ( isset( $woocommerce->cart->cart_contents[$cart_item_key]['discounts'] ) ) {
-			if ( in_array( $this->module_id, $woocommerce->cart->cart_contents[$cart_item_key]['discounts']['by'] ) ) {
+		if ( isset( WC()->cart->cart_contents[$cart_item_key]['discounts'] ) ) {
+			if ( in_array( $this->module_id, WC()->cart->cart_contents[$cart_item_key]['discounts']['by'] ) ) {
 				
 				//Updated in 2.10.5 to return false, instead of passing the value to the filter.  
 				//Returning true from the filter would cause the discount to be applied more than once. 
 				
 				return false;
-			} elseif ( count( array_intersect( array('simple_category', 'simple_membership', 'simple_group'), $woocommerce->cart->cart_contents[$cart_item_key]['discounts']['by'] ) ) > 0 ) {
+			} elseif ( count( array_intersect( array('simple_category', 'simple_membership', 'simple_group'), WC()->cart->cart_contents[$cart_item_key]['discounts']['by'] ) ) > 0 ) {
 				$cumulative = true;
 			}
 		} else {
@@ -39,10 +39,7 @@ abstract class WC_Dynamic_Pricing_Simple_Base extends WC_Dynamic_Pricing_Module_
 	}
 
 	public function get_product_working_price( $working_price, $product ) {
-
 		return apply_filters( 'woocommerce_dynamic_pricing_get_product_price_to_discount', $working_price, $product );
 	}
 
 }
-
-?>

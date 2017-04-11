@@ -414,6 +414,75 @@ if ( !class_exists( 'WC_Dynamic_Pricing_Compatibility' ) ) :
 			return false;
 		}
 
+		public static function get_product_category_ids($product){
+			if ( self::is_wc_version_gte_2_7() ) {
+				if ( $product->is_type( 'variation' ) ) {
+					$parent = wc_get_product( $product->get_parent_id() );
+
+					return $parent->get_category_ids();
+				} else {
+					return $product->get_category_ids();
+				}
+			} else {
+				$id = isset($product->variation_id) ? $product->parent->get_id() : $product->get_id();
+				$terms = wp_get_post_terms( $id, 'product_cat', array( 'fields' => 'ids' ) );
+				return $terms;
+			}
+		}
+
+		/**
+		 * @param $product WC_Product
+		 * @param $key
+		 * @param string $context
+		 *
+		 * @return mixed
+		 */
+		public static function get_product_meta($product, $key, $context = 'view'){
+
+			if (self::is_wc_version_gte_2_7()){
+				return $product->get_meta($key, $context);
+			}else {
+				return get_post_meta($product->get_id(), $key, true);
+			}
+
+		}
+
+		/**
+		 * @param $product WC_Product
+		 * @param $key
+		 * @param $value
+		 *
+		 * @return bool|int
+		 */
+		public static function update_product_meta($product, $key, $value){
+
+			if (self::is_wc_version_gte_2_7()){
+				return $product->update_meta_data($key, $value);
+			}else {
+				return update_post_meta($product->get_id(), $key, $value);
+			}
+
+		}
+
+		/**
+		 * @param $product WC_Product
+		 * @param $key
+		 *
+		 * @return bool
+		 */
+		public static function delete_product_meta($product, $key){
+
+			if (self::is_wc_version_gte_2_7()){
+				return $product->delete_meta_data($key);
+			}else {
+				return delete_post_meta($product->get_id(), $key);
+			}
+
+		}
+
+
+
+
 		/**
 		 * Compatibility function to use the new WC_Admin_Meta_Boxes class for the save_errors() function
 		 *
@@ -500,6 +569,16 @@ if ( !class_exists( 'WC_Dynamic_Pricing_Compatibility' ) ) :
 		}
 
 		/**
+		 * Returns true if the installed version of WooCommerce is 2.7.0 or greater
+		 *
+		 * @since 1.0
+		 * @return boolean true if the installed version of WooCommerce is 2.7.0 or greater
+		 */
+		public static function is_wc_version_gte_2_7() {
+			return self::is_wc_version_gt( '2.7.0' );
+		}
+
+		/**
 		 * Returns true if the installed version of WooCommerce is greater than $version
 		 *
 		 * @since 1.0
@@ -512,12 +591,5 @@ if ( !class_exists( 'WC_Dynamic_Pricing_Compatibility' ) ) :
 		}
 
 	}
-
-	
-
-	
-
-	
-
 
 endif; // Class exists check

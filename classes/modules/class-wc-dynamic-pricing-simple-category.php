@@ -110,11 +110,11 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 
 				$original_price = $this->get_price_to_discount( $cart_item, $cart_item_key );
 
-				$_product         = $cart_item['data'];
-				$price_adjusted   = false;
-				$applied_rule     = false;
-				$applied_rule_set = false;
-				$applied_rule_set_id;
+				$_product            = $cart_item['data'];
+				$price_adjusted      = false;
+				$applied_rule        = false;
+				$applied_rule_set    = false;
+				$applied_rule_set_id = null;
 
 				foreach ( $this->available_rulesets as $set_id => $pricing_rule_set ) {
 
@@ -144,12 +144,16 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 			return false;
 		}
 
+		$cat_id = is_array( $cat_id ) ? $cat_id : array( $cat_id );
+
 		$process_discounts = false;
 		if ( ( isset( $this->available_rulesets ) && count( $this->available_rulesets ) > 0 ) || isset( $this->available_advanced_rulesets ) && count( $this->available_advanced_rulesets ) ) {
 			if ( $cat_id ) {
-				$process_discounts = is_object_in_term( $_product->id, 'product_cat', $cat_id );
+				$product_categories = $this->get_product_category_ids( $_product );
+				$process_discounts  = count( array_intersect( $cat_id, $product_categories ) ) > 0;
 			}
 		}
+
 
 		return apply_filters( 'woocommerce_dynamic_pricing_is_applied_to', $process_discounts, $_product, $this->module_id, $this, $cat_id );
 	}
@@ -262,5 +266,3 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 	}
 
 }
-
-?>

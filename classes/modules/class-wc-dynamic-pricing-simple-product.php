@@ -32,5 +32,3 @@ class WC_Dynamic_Pricing_Simple_Product extends WC_Dynamic_Pricing_Simple_Base {
 	}
 
 }
-
-?>
