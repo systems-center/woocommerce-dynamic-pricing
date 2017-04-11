@@ -11,5 +11,3 @@ abstract class WC_Dynamic_Pricing_Advanced_Base extends WC_Dynamic_Pricing_Modul
 	}
 
 }
-
-?>

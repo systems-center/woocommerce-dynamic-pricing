@@ -34,7 +34,7 @@ class woocommerce_store_pricing_rules_admin {
 	public function enqueue( $hook ) {
 		global $post, $woocommerce, $wp_scripts;
 		if ( $hook == 'woocommerce_page_wc_dynamic_pricing' || ( $post && $post->post_type == 'product') ) {
-			if ( floatval( $woocommerce->version ) >= 2.0 ) {
+			if ( floatval( WC()->version ) >= 2.0 ) {
 				wp_enqueue_style( 'woocommerce-pricing-admin', WC_Dynamic_Pricing::plugin_url() . '/assets/admin/admin.css' );
 				wp_enqueue_script( 'woocommerce-pricing-admin', WC_Dynamic_Pricing::plugin_url() . '/assets/admin/admin.js', array('jquery', 'jquery-ui-datepicker') );
 			} else {
@@ -43,7 +43,7 @@ class woocommerce_store_pricing_rules_admin {
 			}
 
 			wp_localize_script( 'woocommerce-pricing-admin', 'woocommerce_pricing_admin', array(
-			    'calendar_image' => $woocommerce->plugin_url() . '/assets/images/calendar.png'
+			    'calendar_image' => WC()->plugin_url() . '/assets/images/calendar.png'
 			) );
 
 			// Enqueue jQuery UI styles
@@ -405,7 +405,7 @@ class woocommerce_store_pricing_rules_admin {
 				if ( $valid ) {
 
 					if ( isset( $rule_set['invalid'] ) ) {
-						unset( $rules_set['invalid'] );
+						unset( $rule_set['invalid'] );
 					}
 
 					$rules[$key] = $rule_set;

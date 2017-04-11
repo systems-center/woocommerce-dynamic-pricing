@@ -247,7 +247,7 @@ class WC_Dynamic_Pricing_Simple_Group extends WC_Dynamic_Pricing_Simple_Base {
 
 					$tax_display_mode = get_option( 'woocommerce_tax_display_shop' );
 					$fixed_price = round( $amount, (int) $num_decimals );
-					$result = $tax_display_mode == 'incl' ? $_product->get_price_including_tax( 1, $fixed_price ) : $_product->get_price_excluding_tax( 1, $fixed_price );
+					$result = $tax_display_mode == 'incl' ? wc_get_price_including_tax($_product, array('price' => $fixed_price )) : wc_get_price_excluding_tax( $_product, array('price' => $fixed_price ));
 
 					break;
 				default:
