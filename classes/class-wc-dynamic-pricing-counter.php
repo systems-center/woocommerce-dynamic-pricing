@@ -2,16 +2,16 @@
 
 class WC_Dynamic_Pricing_Counter {
 
-    public $taxonomy_counts = array();
+	public $taxonomy_counts = array();
 	public $product_counts = array();
 	public $variation_counts = array();
 	public $category_counts = array();
 	private $categories_in_cart = array();
 	private $taxonomies_in_cart = array();
 
-    /**
-     * @var WC_Dynamic_Pricing_Counter
-     */
+	/**
+	 * @var WC_Dynamic_Pricing_Counter
+	 */
 	private static $instance;
 
 	public static function register() {
@@ -20,90 +20,95 @@ class WC_Dynamic_Pricing_Counter {
 		}
 	}
 
-    /**
-     * @return WC_Dynamic_Pricing_Counter
-     */
-	public static function instance(){
-	    self::register();
-	    return self::instance();
-    }
+	/**
+	 * @return WC_Dynamic_Pricing_Counter
+	 */
+	public static function instance() {
+		self::register();
 
-	public function __construct() {
-		add_action( 'woocommerce_before_calculate_totals', array(&$this, 'reset_counter'), 80, 1 );
-
-		add_action('woocommerce_cart_emptied', array($this, 'empty_counter'), 0);
-
-		//Share Cart
-        // Ajax - Send Cart
-        add_action( 'wp_ajax_send_cart_email_ajax', array( $this, 'empty_counter' ), 0 );
-        add_action( 'wp_ajax_nopriv_send_cart_email_ajax', array( $this, 'empty_counter' ), 0 );
-
-
-        add_filter( 'woocommerce_get_cart_item_from_session', array(&$this, 'get_cart_item_from_session'), 100, 3 );
-
-		//Add action to reset counters when product added to cart
-		add_action( 'woocommerce_add_to_cart', array(&$this, 'on_add_to_cart'), 100, 6 );
+		return self::instance();
 	}
 
-	public function empty_counter(){
-	    $this->taxonomy_counts = array();
-        $this->taxonomies_in_cart = array();
-        $this->product_counts = array();
-        $this->variation_counts = array();
-        $this->category_counts = array();
-        $this->categories_in_cart = array();
-    }
+	public function __construct() {
+		add_action( 'woocommerce_before_calculate_totals', array( &$this, 'reset_counter' ), 80, 1 );
+
+		add_action( 'woocommerce_cart_emptied', array( $this, 'empty_counter' ), 0 );
+
+		//Share Cart
+		// Ajax - Send Cart
+		add_action( 'wp_ajax_send_cart_email_ajax', array( $this, 'empty_counter' ), 0 );
+		add_action( 'wp_ajax_nopriv_send_cart_email_ajax', array( $this, 'empty_counter' ), 0 );
+
+
+		add_filter( 'woocommerce_get_cart_item_from_session', array( &$this, 'get_cart_item_from_session' ), 100, 3 );
+
+		//Add action to reset counters when product added to cart
+		add_action( 'woocommerce_add_to_cart', array( &$this, 'on_add_to_cart' ), 100, 6 );
+	}
+
+	public function empty_counter() {
+		$this->taxonomy_counts    = array();
+		$this->taxonomies_in_cart = array();
+		$this->product_counts     = array();
+		$this->variation_counts   = array();
+		$this->category_counts    = array();
+		$this->categories_in_cart = array();
+	}
 
 	public function reset_counter( $cart ) {
 
-		$this->product_counts = array();
-		$this->variation_counts = array();
-		$this->category_counts = array();
+		$this->product_counts     = array();
+		$this->variation_counts   = array();
+		$this->category_counts    = array();
 		$this->categories_in_cart = array();
-        $this->taxonomies_in_cart = array();
-        $this->taxonomy_counts = array();
+		$this->taxonomies_in_cart = array();
+		$this->taxonomy_counts    = array();
 
 		if ( sizeof( $cart->cart_contents ) > 0 ) {
 			foreach ( $cart->cart_contents as $cart_item_key => $values ) {
 				$quantity = isset( $values['quantity'] ) ? (int) $values['quantity'] : 0;
 
-				$product_id = $values['product_id'];
+				$product_id   = $values['product_id'];
 				$variation_id = isset( $values['variation_id'] ) ? $values['variation_id'] : false;
 
 				//Store product counts
-				$this->product_counts[$product_id] = isset( $this->product_counts[$product_id] ) ? $this->product_counts[$product_id] + $quantity : $quantity;
+				$this->product_counts[ $product_id ] = isset( $this->product_counts[ $product_id ] ) ? $this->product_counts[ $product_id ] + $quantity : $quantity;
 
 				//Gather product variation id counts
-				if ( !empty( $variation_id ) ) {
-					$this->variation_counts[$variation_id] = isset( $this->variation_counts[$variation_id] ) ?
-						$this->variation_counts[$variation_id] + $quantity : $quantity;
+				if ( ! empty( $variation_id ) ) {
+					$this->variation_counts[ $variation_id ] = isset( $this->variation_counts[ $variation_id ] ) ?
+						$this->variation_counts[ $variation_id ] + $quantity : $quantity;
 				}
 
 				//Gather product category counts
-				$product_categories = wp_get_post_terms( $product_id, 'product_cat' );
-				foreach ( $product_categories as $category ) {
-					$this->category_counts[$category->term_id] = isset( $this->category_counts[$category->term_id] ) ?
-						$this->category_counts[$category->term_id] + $quantity : $quantity;
+				$product            = wc_get_product( $product_id );
+				$product_categories = WC_Dynamic_Pricing_Compatibility::get_product_category_ids($product);
 
-					$this->categories_in_cart[] = $category->term_id;
+				foreach ( $product_categories as $category ) {
+					$this->category_counts[ $category ] = isset( $this->category_counts[$category] ) ?
+						$this->category_counts[ $category ] + $quantity : $quantity;
+
+					$this->categories_in_cart[] = $category;
 				}
 
-				$additional_taxonomies = apply_filters('wc_dynamic_pricing_get_discount_taxonomies', array());
-                //Gather additional taxonomy counts.
+				$additional_taxonomies = apply_filters( 'wc_dynamic_pricing_get_discount_taxonomies', array() );
+				//Gather additional taxonomy counts.
 
-                foreach($additional_taxonomies as $additional_taxonomy) {
-	                if ( taxonomy_exists( $additional_taxonomy ) ) {
-		                $this->taxonomy_counts[ $additional_taxonomy ]    = array();
-		                $this->taxonomies_in_cart[ $additional_taxonomy ] = array();
-		                $product_categories                               = wp_get_post_terms( $product_id, $additional_taxonomy );
-		                foreach ( $product_categories as $category ) {
-			                $this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] = isset( $this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] ) ?
-				                $this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] + $quantity : $quantity;
+				foreach ( $additional_taxonomies as $additional_taxonomy ) {
+					if (!taxonomy_exists($additional_taxonomy)){
+						continue;
+					}
+					$this->taxonomy_counts[ $additional_taxonomy ]    = array();
+					$this->taxonomies_in_cart[ $additional_taxonomy ] = array();
+					$product_categories                               = wp_get_post_terms( $product_id, $additional_taxonomy );
+					foreach ( $product_categories as $category ) {
+						$this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] = isset( $this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] ) ?
+							$this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] + $quantity : $quantity;
 
-			                $this->taxonomies_in_cart[ $additional_taxonomy ][] = $category->term_id;
-		                }
-	                }
-                }
+						$this->taxonomies_in_cart[ $additional_taxonomy ][] = $category->term_id;
+					}
+				}
+
 
 			}
 		}
@@ -113,47 +118,50 @@ class WC_Dynamic_Pricing_Counter {
 
 	public function on_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
 		//Store product counts
-		$this->product_counts[$product_id] = isset( $this->product_counts[$product_id] ) ?
-			$this->product_counts[$product_id] + $quantity : $quantity;
+		$this->product_counts[ $product_id ] = isset( $this->product_counts[ $product_id ] ) ?
+			$this->product_counts[ $product_id ] + $quantity : $quantity;
 
 		//Gather product variation id counts
-		if ( isset( $variation_id ) && !empty( $variation_id ) ) {
-			$this->variation_counts[$variation_id] = isset( $this->variation_counts[$variation_id] ) ?
-				$this->variation_counts[$variation_id] + $quantity : $quantity;
+		if ( isset( $variation_id ) && ! empty( $variation_id ) ) {
+			$this->variation_counts[ $variation_id ] = isset( $this->variation_counts[ $variation_id ] ) ?
+				$this->variation_counts[ $variation_id ] + $quantity : $quantity;
 		}
 
 		//Gather product category counts
-		$product_categories = wp_get_post_terms( $product_id, 'product_cat' );
-		foreach ( $product_categories as $category ) {
-			$this->category_counts[$category->term_id] = isset( $this->category_counts[$category->term_id] ) ?
-				$this->category_counts[$category->term_id] + $quantity : $quantity;
+		$product            = wc_get_product( $product_id );
+		$product_categories = WC_Dynamic_Pricing_Compatibility::get_product_category_ids($product);
 
-			$this->categories_in_cart[] = $category->term_id;
+		foreach ( $product_categories as $category ) {
+			$this->category_counts[ $category ] = isset( $this->category_counts[ $category ] ) ?
+				$this->category_counts[ $category ] + $quantity : $quantity;
+
+			$this->categories_in_cart[] = $category;
 		}
 
-        $additional_taxonomies = apply_filters('wc_dynamic_pricing_get_discount_taxonomies', array('product_brand'));
-        //Gather additional taxonomy counts.
+		$additional_taxonomies = apply_filters( 'wc_dynamic_pricing_get_discount_taxonomies', array( 'product_brand' ) );
+		//Gather additional taxonomy counts.
 
-        foreach($additional_taxonomies as $additional_taxonomy) {
-            if (taxonomy_exists($additional_taxonomy)) {
+		foreach ( $additional_taxonomies as $additional_taxonomy ) {
+			if (!taxonomy_exists($additional_taxonomy)){
+				continue;
+			}
 
-	            if ( ! isset( $this->taxonomy_counts[ $additional_taxonomy ] ) ) {
-		            $this->taxonomy_counts[ $additional_taxonomy ] = array();
-	            }
+			if ( ! isset( $this->taxonomy_counts[ $additional_taxonomy ] ) ) {
+				$this->taxonomy_counts[ $additional_taxonomy ] = array();
+			}
 
-	            if ( ! isset( $this->taxonomies_in_cart[ $additional_taxonomy ] ) ) {
-		            $this->taxonomies_in_cart[ $additional_taxonomy ] = array();
-	            }
+			if ( ! isset( $this->taxonomies_in_cart[ $additional_taxonomy ] ) ) {
+				$this->taxonomies_in_cart[ $additional_taxonomy ] = array();
+			}
 
-	            $product_categories = wp_get_post_terms( $product_id, $additional_taxonomy );
-	            foreach ( $product_categories as $category ) {
-		            $this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] = isset( $this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] ) ?
-			            $this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] + $quantity : $quantity;
+			$product_categories = wp_get_post_terms( $product_id, $additional_taxonomy );
+			foreach ( $product_categories as $category ) {
+				$this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] = isset( $this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] ) ?
+					$this->taxonomy_counts[ $additional_taxonomy ][ $category->term_id ] + $quantity : $quantity;
 
-		            $this->taxonomies_in_cart[ $additional_taxonomy ][] = $category->term_id;
-	            }
-            }
-        }
+				$this->taxonomies_in_cart[ $additional_taxonomy ][] = $category->term_id;
+			}
+		}
 
 		do_action( 'wc_dynamic_pricing_counter_updated' );
 	}
@@ -162,22 +170,22 @@ class WC_Dynamic_Pricing_Counter {
 		$product = $cart_item['data'];
 
 		//Store product counts
-		$this->product_counts[$product->id] = isset( $this->product_counts[$product->id] ) ?
-			$this->product_counts[$product->id] + $cart_item['quantity'] : $cart_item['quantity'];
+		$this->product_counts[ $product->get_id() ] = isset( $this->product_counts[ $product->get_id() ] ) ?
+			$this->product_counts[ $product->get_id() ] + $cart_item['quantity'] : $cart_item['quantity'];
 
 		//Gather product variation id counts
-		if ( isset( $cart_item['variation_id'] ) && !empty( $cart_item['variation_id'] ) ) {
-			$this->variation_counts[$cart_item['variation_id']] = isset( $this->variation_counts[$cart_item['variation_id']] ) ?
-				$this->variation_counts[$cart_item['variation_id']] + $cart_item['quantity'] : $cart_item['quantity'];
+		if ( isset( $cart_item['variation_id'] ) && ! empty( $cart_item['variation_id'] ) ) {
+			$this->variation_counts[ $cart_item['variation_id'] ] = isset( $this->variation_counts[ $cart_item['variation_id'] ] ) ?
+				$this->variation_counts[ $cart_item['variation_id'] ] + $cart_item['quantity'] : $cart_item['quantity'];
 		}
 
 		//Gather product category counts
-		$product_categories = wp_get_post_terms( $product->id, 'product_cat' );
+		$product_categories = WC_Dynamic_Pricing_Compatibility::get_product_category_ids($product);
 		foreach ( $product_categories as $category ) {
-			$this->category_counts[$category->term_id] = isset( $this->category_counts[$category->term_id] ) ?
-				$this->category_counts[$category->term_id] + $cart_item['quantity'] : $cart_item['quantity'];
+			$this->category_counts[ $category] = isset( $this->category_counts[ $category ] ) ?
+				$this->category_counts[$category ] + $cart_item['quantity'] : $cart_item['quantity'];
 
-			$this->categories_in_cart[] = $category->term_id;
+			$this->categories_in_cart[] = $category;
 		}
 
 		do_action( 'wc_dynamic_pricing_counter_updated' );
@@ -187,47 +195,45 @@ class WC_Dynamic_Pricing_Counter {
 
 	/** Static Access Methods * */
 	public static function get_product_count( $product_id ) {
-		return isset( self::$instance->product_counts[$product_id] ) ? self::$instance->product_counts[$product_id] : 0;
+		return isset( self::$instance->product_counts[ $product_id ] ) ? self::$instance->product_counts[ $product_id ] : 0;
 	}
 
 	public static function get_variation_count( $variation_id ) {
-		return isset( self::$instance->variation_counts[$variation_id] ) ? self::$instance->variation_counts[$variation_id] : 0;
+		return isset( self::$instance->variation_counts[ $variation_id ] ) ? self::$instance->variation_counts[ $variation_id ] : 0;
 	}
 
 	public static function get_category_count( $category_id ) {
-		return isset( self::$instance->category_counts[$category_id] ) ? self::$instance->category_counts[$category_id] : 0;
+		return isset( self::$instance->category_counts[ $category_id ] ) ? self::$instance->category_counts[ $category_id ] : 0;
 	}
 
 	public static function categories_in_cart( $categories ) {
-		if ( !is_array( $categories ) ) {
-			$categories = array($categories);
+		if ( ! is_array( $categories ) ) {
+			$categories = array( $categories );
 		}
 
 		return count( array_intersect( self::$instance->categories_in_cart, $categories ) ) > 0;
 	}
 
 
+	public static function get_taxonomy_count( $category_id, $taxonomy ) {
+		if ( ! isset( self::$instance->taxonomy_counts[ $taxonomy ] ) ) {
+			return 0;
+		}
 
-    public static function get_taxonomy_count( $category_id, $taxonomy ) {
-	    if (!isset(self::$instance->taxonomy_counts[$taxonomy])){
-	        return 0;
-        }
+		return isset( self::$instance->taxonomy_counts[ $taxonomy ][ $category_id ] ) ? self::$instance->taxonomy_counts[ $taxonomy ][ $category_id ] : 0;
+	}
 
-        return isset( self::$instance->taxonomy_counts[$taxonomy][$category_id] ) ? self::$instance->taxonomy_counts[$taxonomy][$category_id] : 0;
-    }
+	public static function taxonomies_in_cart( $categories, $taxonomy ) {
+		if ( ! isset( self::$instance->taxonomies_in_cart[ $taxonomy ] ) ) {
+			return false;
+		}
 
-    public static function taxonomies_in_cart( $categories, $taxonomy ) {
-        if (!isset(self::$instance->taxonomies_in_cart[$taxonomy])){
-            return false;
-        }
-
-	    if ( !is_array( $categories ) ) {
-            $categories = array($categories);
-        }
-
+		if ( ! is_array( $categories ) ) {
+			$categories = array( $categories );
+		}
 
 
-        return count( array_intersect( self::$instance->taxonomies_in_cart[$taxonomy], $categories ) ) > 0;
-    }
+		return count( array_intersect( self::$instance->taxonomies_in_cart[ $taxonomy ], $categories ) ) > 0;
+	}
 
 }
