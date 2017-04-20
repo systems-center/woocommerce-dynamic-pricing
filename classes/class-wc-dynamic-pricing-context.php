@@ -58,7 +58,8 @@ class WC_Dynamic_Pricing_Context {
 		if ( isset( $session_data['discounts'] ) ) {
 			unset( $session_data['discounts'] );
 		}
-		$this->_products_in_cart[ $cart_item_key ] = &$session_data['data'];
+
+		$this->_products_in_cart[ $cart_item_key ] = &$session_data;
 
 		return $session_data;
 	}
@@ -74,7 +75,7 @@ class WC_Dynamic_Pricing_Context {
 		$cart_item     = null;
 		if ( $this->_products_in_cart ) {
 			foreach ( $this->_products_in_cart as $key => &$cart_product ) {
-				if ( $product === $cart_product ) {
+				if ( $product === $cart_product['data'] ) {
 					$cart_item_key = $key;
 					break;
 				}

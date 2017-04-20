@@ -1,4 +1,10 @@
 *** Dynamic Pricing Changelog ***
+2017.04.10 - version 3.0.3
+    * Fix:  Fixes and issue with Composite products displaying incorrect cart line item totals.
+
+2017.04.05 - version 3.0.2
+    * Fix:  Correct issue where 0 based discounts for variable products where not properly reflected in the catalog or single product page.
+
 2017.04.04 - version 3.0.1
     * Fix:  Correct issue with invalid WC 3.0 delete_meta method.
     * Fix:  Correct issue with invalid WC 3.0 update_meta method.
