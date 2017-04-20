@@ -4,7 +4,7 @@
   Plugin Name: WooCommerce Dynamic Pricing
   Plugin URI: https://woocommerce.com/products/dynamic-pricing/
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 3.0.1
+  Version: 3.0.3
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3
@@ -74,6 +74,7 @@ class WC_Dynamic_Pricing {
 	public $db_version = '2.1';
 
 	public function __construct() {
+
 		add_action( 'woocommerce_cart_loaded_from_session', array( $this, 'on_cart_loaded_from_session' ), 98, 1 );
 
 		//Add the actions dynamic pricing uses to trigger price adjustments
