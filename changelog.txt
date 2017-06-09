@@ -1,4 +1,28 @@
 *** Dynamic Pricing Changelog ***
+2017.06.08 - version 3.0.9
+    * Update:  Cache loaded product rules for performance improvements.
+    * Update:  Update text domain to woocommerce-dynamic-pricing.
+    * Update:  Localize all strings in the admin interface.
+
+2017.05.24 - version 3.0.8
+    * Update:  Fix issue with WC < 3.0 and WooCommerce Membership Discounts
+    * Update:  Fix issue with the transient caching of variable products for different roles.
+    * Update:  Compatibility with Subscribe All The Things 2.0
+
+2017.04.26 - version 3.0.7
+    * Update:  Better compatibility with Product Bundles.
+
+2017.04.21 - version 3.0.6
+    * Fix:  Patch to correct for error in WC < 3.0 where $product->get_parent() does not actually return the parent.
+
+2017.04.18 - version 3.0.5
+    * Fix:  Correct fatal error on variable products for older WooCommerce versions less than 3.0.0
+
+2017.04.17 - version 3.0.4
+    * Update: Switch context to use spl_object_hash
+    * Fix:  Call get_price on cart items in edit mode to prevent extensions from applying duplicate modifications to the cart item price.
+    * Fix:  Call get_price in get price to discount in edit mode to prevent subscriptions from applying the subscription price twice.
+    
 2017.04.10 - version 3.0.3
     * Fix:  Fixes and issue with Composite products displaying incorrect cart line item totals.
 

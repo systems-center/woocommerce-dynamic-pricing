@@ -31,9 +31,9 @@ abstract class WC_Dynamic_Pricing_Module_Base {
 			} else {
 
 				if ( apply_filters( 'wc_dynamic_pricing_get_use_sale_price', true, $filter_cart_item['data'] ) ) {
-					$result = WC()->cart->cart_contents[ $cart_item_key ]['data']->get_price();
+					$result = WC()->cart->cart_contents[ $cart_item_key ]['data']->get_price('edit');
 				} else {
-					$result = WC()->cart->cart_contents[ $cart_item_key ]['data']->get_regular_price();
+					$result = WC()->cart->cart_contents[ $cart_item_key ]['data']->get_regular_price('edit');
 				}
 			}
 		}

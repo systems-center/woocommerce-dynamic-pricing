@@ -12,14 +12,14 @@ class woocommerce_product_pricing_rules_admin {
 		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_3() ) :
 			?>
             <li class="pricing_tab dynamic_pricing_options dynamic_pricing_options_23">
-                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'wc_pricing' ); ?></a></li>
+                <a href="#dynamic_pricing_data"><span><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></span></a></li>
 
 		<?php elseif ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_1() ) : ?>
             <li class="pricing_tab dynamic_pricing_options dynamic_pricing_options_21">
-                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'wc_pricing' ); ?></a></li>
+                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></a></li>
 		<?php else : ?>
             <li class="pricing_tab dynamic_pricing_options">
-                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'wc_pricing' ); ?></a></li>
+                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></a></li>
 
 			<?php
 		endif;
@@ -40,7 +40,7 @@ class woocommerce_product_pricing_rules_admin {
 				<?php endif; ?>
             </div>
 
-            <button title="<?php _e( 'Allows you to configure another Price Adjustment.  Useful if you have different sets of conditions and pricing adjustments which need to be applied to this product.', 'wc_pricing' ); ?>" id="woocommerce-pricing-add-ruleset" type="button" class="button button-primary"><?php _e( 'Add Pricing Group', 'wc_pricing' ); ?></button>
+            <button title="<?php _e( 'Allows you to configure another Price Adjustment.  Useful if you have different sets of conditions and pricing adjustments which need to be applied to this product.', 'woocommerce-dynamic-pricing' ); ?>" id="woocommerce-pricing-add-ruleset" type="button" class="button button-primary"><?php _e( 'Add Pricing Group', 'woocommerce-dynamic-pricing' ); ?></button>
             <div class="clear"></div>
         </div>
 		<?php
@@ -62,7 +62,7 @@ class woocommerce_product_pricing_rules_admin {
 			?>
             <div id="woocommerce-pricing-ruleset-<?php echo $name; ?>" class="woocommerce_pricing_ruleset">
                 <div id="woocommerce-pricing-conditions-<?php echo $name; ?>" class="section    ">
-                    <h4 class="first">Pricing Group<a href="#" data-name="<?php echo $name; ?>" class="delete_pricing_ruleset"><img src="<?php echo WC_Dynamic_Pricing::plugin_url(); ?>/assets/images/delete.png" title="<?php _e( 'Delete this Price Adjustment', 'wc_pricing' ); ?>" alt="<?php _e( 'Delete this Price Adjustment', 'wc_pricing' ); ?>" style="cursor:pointer; margin:0 3px;float:right;"/></a>
+                    <h4 class="first">Pricing Group<a href="#" data-name="<?php echo $name; ?>" class="delete_pricing_ruleset"><img src="<?php echo WC_Dynamic_Pricing::plugin_url(); ?>/assets/images/delete.png" title="<?php _e( 'Delete this Price Adjustment', 'woocommerce-dynamic-pricing' ); ?>" alt="<?php _e( 'Delete this Price Adjustment', 'woocommerce-dynamic-pricing' ); ?>" style="cursor:pointer; margin:0 3px;float:right;"/></a>
                     </h4>
 					<?php
 					$condition_index = 0;
@@ -116,17 +116,17 @@ class woocommerce_product_pricing_rules_admin {
                 </div>
 
                 <div id="woocommerce-pricing-mode-<?php echo $name; ?>" class="section">
-                    <label for="pricing_ruleset_mode_value_<?php echo $name . '_0'; ?>"><?php _e( 'Rule Processing Mode', 'wc_pricing' ); ?></label>
+                    <label for="pricing_ruleset_mode_value_<?php echo $name . '_0'; ?>"><?php _e( 'Rule Processing Mode', 'woocommerce-dynamic-pricing' ); ?></label>
                     <select id="pricing_ruleset_mode_value_<?php echo $name . '_0'; ?>" name="pricing_rules[<?php echo $name; ?>][mode]" class="pricing_rule_mode">
-                        <option <?php selected( 'continuous', $mode ); ?> value="continuous"><?php _e( 'Bulk', 'wc_pricing' ); ?></option>
-                        <option <?php selected( 'block', $mode ); ?> value="block"><?php _e( 'Special Offer', 'wc_pricing' ); ?></option>
+                        <option <?php selected( 'continuous', $mode ); ?> value="continuous"><?php _e( 'Bulk', 'woocommerce-dynamic-pricing' ); ?></option>
+                        <option <?php selected( 'block', $mode ); ?> value="block"><?php _e( 'Special Offer', 'woocommerce-dynamic-pricing' ); ?></option>
                     </select>
                 </div>
 
                 <div id="woocommerce-pricing-dates-<?php echo $name; ?>" class="section pricing-rule-date-fields">
-                    <label for="pricing_ruleset_dates_value_<?php echo $name . '_date_from'; ?>"><?php _e( 'Dates', 'wc_pricing' ); ?></label>
-                    <input value="<?php echo $date_from; ?>" type="text" class="short date_from" title="<?php _e( 'Leave both fields blank to not restrict this pricing group to a date range', 'wc_pricing' ); ?>" name="pricing_rules[<?php echo $name; ?>][date_from]" id="pricing_ruleset_dates_value_<?php echo $name . '_date_from'; ?>" value="" placeholder="<?php echo _x( 'From&hellip;', 'placeholder', 'woocommerce' ) ?> YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])">
-                    <input value="<?php echo $date_to; ?>" type="text" class="short date_to" title="<?php _e( 'Leave both fields blank to not restrict this pricing group to a date range', 'wc_pricing' ); ?>" name="pricing_rules[<?php echo $name; ?>][date_to]" id="pricing_ruleset_dates_value_<?php echo $name . '_date_to'; ?>" value="" placeholder="<?php echo _x( 'To&hellip;', 'placeholder', 'woocommerce' ); ?> YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])">
+                    <label for="pricing_ruleset_dates_value_<?php echo $name . '_date_from'; ?>"><?php _e( 'Dates', 'woocommerce-dynamic-pricing' ); ?></label>
+                    <input value="<?php echo $date_from; ?>" type="text" class="short date_from" title="<?php _e( 'Leave both fields blank to not restrict this pricing group to a date range', 'woocommerce-dynamic-pricing' ); ?>" name="pricing_rules[<?php echo $name; ?>][date_from]" id="pricing_ruleset_dates_value_<?php echo $name . '_date_from'; ?>" value="" placeholder="<?php echo _x( 'From&hellip;', 'placeholder', 'woocommerce' ) ?> YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])">
+                    <input value="<?php echo $date_to; ?>" type="text" class="short date_to" title="<?php _e( 'Leave both fields blank to not restrict this pricing group to a date range', 'woocommerce-dynamic-pricing' ); ?>" name="pricing_rules[<?php echo $name; ?>][date_to]" id="pricing_ruleset_dates_value_<?php echo $name . '_date_to'; ?>" value="" placeholder="<?php echo _x( 'To&hellip;', 'placeholder', 'woocommerce' ); ?> YYYY-MM-DD" maxlength="10" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])">
                     <div class="clear"></div>
                 </div>
 
@@ -162,16 +162,16 @@ class woocommerce_product_pricing_rules_admin {
                     <table id="woocommerce-pricing-rules-table-<?php echo $name; ?>" class="continuous" data-lastindex="<?php echo ( is_array( $pricing_rules ) && sizeof( $pricing_rules ) > 0 ) ? count( $pricing_rules ) : '1'; ?>">
                         <thead>
                         <th>
-							<?php _e( 'Minimum Quantity', 'wc_pricing' ); ?>
+							<?php _e( 'Minimum Quantity', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>
-							<?php _e( 'Max Quantity', 'wc_pricing' ); ?>
+							<?php _e( 'Max Quantity', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>
-							<?php _e( 'Type', 'wc_pricing' ); ?>
+							<?php _e( 'Type', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>
-							<?php _e( 'Amount', 'wc_pricing' ); ?>
+							<?php _e( 'Amount', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>&nbsp;</th>
                         </thead>
@@ -202,19 +202,19 @@ class woocommerce_product_pricing_rules_admin {
                     <table id="woocommerce-pricing-blockrules-table-<?php echo $name; ?>" class="block" data-lastindex="<?php echo ( is_array( $pricing_rules ) && sizeof( $pricing_rules ) > 0 ) ? count( $pricing_rules ) : '1'; ?>">
                         <thead>
                         <th>
-							<?php _e( 'Purchase', 'wc_pricing' ); ?>
+							<?php _e( 'Purchase', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>
-							<?php _e( 'Receive', 'wc_pricing' ); ?>
+							<?php _e( 'Receive', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>
-							<?php _e( 'Type', 'wc_pricing' ); ?>
+							<?php _e( 'Type', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>
-							<?php _e( 'Amount', 'wc_pricing' ); ?>
+							<?php _e( 'Amount', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>
-							<?php _e( 'Repeating', 'wc_pricing' ); ?>
+							<?php _e( 'Repeating', 'woocommerce-dynamic-pricing' ); ?>
                         </th>
                         <th>&nbsp;</th>
                         </thead>
@@ -275,13 +275,13 @@ class woocommerce_product_pricing_rules_admin {
 		?>
 
         <div>
-            <label for="pricing_rule_apply_to_<?php echo $name . '_' . $condition_index; ?>"><?php _e( 'Applies To:', 'wc_pricing' ); ?></label>
+            <label for="pricing_rule_apply_to_<?php echo $name . '_' . $condition_index; ?>"><?php _e( 'Applies To:', 'woocommerce-dynamic-pricing' ); ?></label>
             <input type="hidden" name="pricing_rules[<?php echo $name; ?>][conditions][<?php echo $condition_index; ?>][type]" value="apply_to"/>
 
-            <select title="<?php _e( 'Choose if this rule should apply to everyone, or to specific roles.  Useful if you only give discounts to existing customers, or if you have tiered pricing based on the users role.', 'wc_pricing' ); ?>" class="pricing_rule_apply_to" id="pricing_rule_apply_to_<?php echo $name . '_' . $condition_index; ?>" name="pricing_rules[<?php echo $name; ?>][conditions][<?php echo $condition_index; ?>][args][applies_to]">
-                <option <?php selected( 'everyone', $condition['args']['applies_to'] ); ?> value="everyone"><?php _e( 'Everyone', 'wc_pricing' ); ?></option>
-                <option <?php selected( 'unauthenticated', $condition['args']['applies_to'] ); ?> value="unauthenticated"><?php _e( 'Guests', 'wc_pricing' ); ?></option>
-                <option <?php selected( 'roles', $condition['args']['applies_to'] ); ?> value="roles"><?php _e( 'Specific Roles', 'wc_pricing' ); ?></option>
+            <select title="<?php _e( 'Choose if this rule should apply to everyone, or to specific roles.  Useful if you only give discounts to existing customers, or if you have tiered pricing based on the users role.', 'woocommerce-dynamic-pricing' ); ?>" class="pricing_rule_apply_to" id="pricing_rule_apply_to_<?php echo $name . '_' . $condition_index; ?>" name="pricing_rules[<?php echo $name; ?>][conditions][<?php echo $condition_index; ?>][args][applies_to]">
+                <option <?php selected( 'everyone', $condition['args']['applies_to'] ); ?> value="everyone"><?php _e( 'Everyone', 'woocommerce-dynamic-pricing' ); ?></option>
+                <option <?php selected( 'unauthenticated', $condition['args']['applies_to'] ); ?> value="unauthenticated"><?php _e( 'Guests', 'woocommerce-dynamic-pricing' ); ?></option>
+                <option <?php selected( 'roles', $condition['args']['applies_to'] ); ?> value="roles"><?php _e( 'Specific Roles', 'woocommerce-dynamic-pricing' ); ?></option>
 				<?php do_action( 'woocommerce_dynamic_pricing_applies_to_options', 'advanced_product', $condition, $name, $condition_index ); ?>
             </select>
 
@@ -330,10 +330,10 @@ class woocommerce_product_pricing_rules_admin {
 		?>
 
         <div>
-            <label for="pricing_rule_variations_<?php echo $name; ?>"><?php _e( 'Product / Variations:', 'wc_pricing' ); ?></label>
-            <select title="<?php _e( 'Choose what you would like to apply this pricing rule set to', 'wc_pricing' ); ?>" class="pricing_rule_variations" id="pricing_rule_variations_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][variation_rules][args][type]">
-                <option <?php selected( 'product', $condition['args']['type'] ); ?> value="product"><?php _e( 'All Variations', 'wc_pricing' ); ?></option>
-                <option <?php selected( 'variations', $condition['args']['type'] ); ?> value="variations"><?php _e( 'Specific Variations', 'wc_pricing' ); ?></option>
+            <label for="pricing_rule_variations_<?php echo $name; ?>"><?php _e( 'Product / Variations:', 'woocommerce-dynamic-pricing' ); ?></label>
+            <select title="<?php _e( 'Choose what you would like to apply this pricing rule set to', 'woocommerce-dynamic-pricing' ); ?>" class="pricing_rule_variations" id="pricing_rule_variations_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][variation_rules][args][type]">
+                <option <?php selected( 'product', $condition['args']['type'] ); ?> value="product"><?php _e( 'All Variations', 'woocommerce-dynamic-pricing' ); ?></option>
+                <option <?php selected( 'variations', $condition['args']['type'] ); ?> value="variations"><?php _e( 'Specific Variations', 'woocommerce-dynamic-pricing' ); ?></option>
             </select>
 
             <div class="variations" style="<?php echo $div_style; ?>">
@@ -348,7 +348,7 @@ class woocommerce_product_pricing_rules_admin {
 							<?php $variation_checked = ( isset( $condition['args']['variations'] ) && is_array( $condition['args']['variations'] ) && in_array( $variation_id, $condition['args']['variations'] ) ) ? 'checked="checked"' : ''; ?>
                             <li>
                                 <label for="variation_<?php echo $variation_id; ?>_<?php echo $name; ?>" class="selectit">
-                                    <input <?php echo $variation_checked; ?> type="checkbox" id="variation_<?php echo $variation_id; ?>_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][variation_rules][args][variations][]" value="<?php echo $variation_id; ?>"/><?php _e( 'Variation ID:', 'wc_pricing' ); ?> <?php echo $variation_id; ?>
+                                    <input <?php echo $variation_checked; ?> type="checkbox" id="variation_<?php echo $variation_id; ?>_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][variation_rules][args][variations][]" value="<?php echo $variation_id; ?>"/><?php _e( 'Variation ID:', 'woocommerce-dynamic-pricing' ); ?> <?php echo $variation_id; ?>
                                 </label>
                             </li>
 						<?php endforeach; ?>
@@ -365,12 +365,12 @@ class woocommerce_product_pricing_rules_admin {
 		$terms     = (array) get_terms( 'product_cat', array( 'get' => 'all' ) );
 		$div_style = ( $collector['type'] != 'cat' ) ? 'display:none;' : '';
 		?>
-        <label for="pricing_rule_when_<?php echo $name; ?>"><?php _e( 'Quantities based on:', 'wc_pricing' ); ?></label>
-        <select title="<?php _e( 'Choose how to calculate the quantity.  This tallied amount is used in determining the min and max quantities used below in the Quantity Pricing section.', 'wc_pricing' ); ?>" class="pricing_rule_when" id="pricing_rule_when_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][collector][type]">
-            <option title="<?php _e( 'Calculate quantity based on the Product ID', 'wc_pricing' ); ?>" <?php selected( 'product', $collector['type'] ); ?> value="product"><?php _e( 'Product Quantity', 'wc_pricing' ); ?></option>
-            <option title="<?php _e( 'Calculate quantity based on the Variation ID', 'wc_pricing' ); ?>" <?php selected( 'variation', $collector['type'] ); ?> value="variation"><?php _e( 'Variation Quantity', 'wc_pricing' ); ?></option>
-            <option title="<?php _e( 'Calculate quantity based on the Cart Line Item', 'wc_pricing' ); ?>" <?php selected( 'cart_item', $collector['type'] ); ?> value="cart_item"><?php _e( 'Cart Line Item Quantity', 'wc_pricing' ); ?></option>
-            <option title="<?php _e( 'Calculate quantity based on total amount of a category in the cart', 'wc_pricing' ); ?>" <?php selected( 'cat', $collector['type'] ); ?> value="cat"><?php _e( 'Quantity of Category', 'wc_pricing' ); ?></option>
+        <label for="pricing_rule_when_<?php echo $name; ?>"><?php _e( 'Quantities based on:', 'woocommerce-dynamic-pricing' ); ?></label>
+        <select title="<?php _e( 'Choose how to calculate the quantity.  This tallied amount is used in determining the min and max quantities used below in the Quantity Pricing section.', 'woocommerce-dynamic-pricing' ); ?>" class="pricing_rule_when" id="pricing_rule_when_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][collector][type]">
+            <option title="<?php _e( 'Calculate quantity based on the Product ID', 'woocommerce-dynamic-pricing' ); ?>" <?php selected( 'product', $collector['type'] ); ?> value="product"><?php _e( 'Product Quantity', 'woocommerce-dynamic-pricing' ); ?></option>
+            <option title="<?php _e( 'Calculate quantity based on the Variation ID', 'woocommerce-dynamic-pricing' ); ?>" <?php selected( 'variation', $collector['type'] ); ?> value="variation"><?php _e( 'Variation Quantity', 'woocommerce-dynamic-pricing' ); ?></option>
+            <option title="<?php _e( 'Calculate quantity based on the Cart Line Item', 'woocommerce-dynamic-pricing' ); ?>" <?php selected( 'cart_item', $collector['type'] ); ?> value="cart_item"><?php _e( 'Cart Line Item Quantity', 'woocommerce-dynamic-pricing' ); ?></option>
+            <option title="<?php _e( 'Calculate quantity based on total amount of a category in the cart', 'woocommerce-dynamic-pricing' ); ?>" <?php selected( 'cat', $collector['type'] ); ?> value="cat"><?php _e( 'Quantity of Category', 'woocommerce-dynamic-pricing' ); ?></option>
         </select>
         <br/>
         <div class="cats" style="<?php echo $div_style; ?>">
@@ -397,28 +397,28 @@ class woocommerce_product_pricing_rules_admin {
 		?>
         <tr id="pricing_rule_row_<?php echo $name . '_' . $index; ?>">
             <td>
-                <input title="<?php _e( 'Apply this adjustment when the quantity in the cart starts at this value.  Use * for any.', 'wc_pricing' ); ?>" class="int_pricing_rule" id="pricing_rule_from_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index ?>][from]" value="<?php echo $rule['from']; ?>"/>
+                <input title="<?php _e( 'Apply this adjustment when the quantity in the cart starts at this value.  Use * for any.', 'woocommerce-dynamic-pricing' ); ?>" class="int_pricing_rule" id="pricing_rule_from_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index ?>][from]" value="<?php echo $rule['from']; ?>"/>
             </td>
             <td>
-                <input title="<?php _e( 'Apply this adjustment when the quantity in the cart is less than this value.  Use * for any.', 'wc_pricing' ); ?>" class="int_pricing_rule" id="pricing_rule_to_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index ?>][to]" value="<?php echo $rule['to']; ?>"/>
+                <input title="<?php _e( 'Apply this adjustment when the quantity in the cart is less than this value.  Use * for any.', 'woocommerce-dynamic-pricing' ); ?>" class="int_pricing_rule" id="pricing_rule_to_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index ?>][to]" value="<?php echo $rule['to']; ?>"/>
             </td>
             <td>
-                <select title="<?php _e( 'The type of adjustment to apply', 'wc_pricing' ); ?>" id="pricing_rule_type_value_<?php echo $name . '_' . $index; ?>" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index; ?>][type]">
-                    <option <?php selected( 'price_discount', $rule['type'] ); ?> value="price_discount"><?php _e( 'Price Discount', 'wc_pricing' ); ?></option>
-                    <option <?php selected( 'percentage_discount', $rule['type'] ); ?> value="percentage_discount"><?php _e( 'Percentage Discount', 'wc_pricing' ); ?></option>
-                    <option <?php selected( 'fixed_price', $rule['type'] ); ?> value="fixed_price"><?php _e( 'Fixed Price', 'wc_pricing' ); ?></option>
+                <select title="<?php _e( 'The type of adjustment to apply', 'woocommerce-dynamic-pricing' ); ?>" id="pricing_rule_type_value_<?php echo $name . '_' . $index; ?>" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index; ?>][type]">
+                    <option <?php selected( 'price_discount', $rule['type'] ); ?> value="price_discount"><?php _e( 'Price Discount', 'woocommerce-dynamic-pricing' ); ?></option>
+                    <option <?php selected( 'percentage_discount', $rule['type'] ); ?> value="percentage_discount"><?php _e( 'Percentage Discount', 'woocommerce-dynamic-pricing' ); ?></option>
+                    <option <?php selected( 'fixed_price', $rule['type'] ); ?> value="fixed_price"><?php _e( 'Fixed Price', 'woocommerce-dynamic-pricing' ); ?></option>
                 </select>
             </td>
             <td>
-                <input title="<?php _e( 'The value of the adjustment. Currency and percentage symbols are not required', 'wc_pricing' ); ?>" class="float_rule_number" id="pricing_rule_amount_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index; ?>][amount]" value="<?php echo $rule['amount']; ?>"/>
+                <input title="<?php _e( 'The value of the adjustment. Currency and percentage symbols are not required', 'woocommerce-dynamic-pricing' ); ?>" class="float_rule_number" id="pricing_rule_amount_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index; ?>][amount]" value="<?php echo $rule['amount']; ?>"/>
             </td>
             <td width="48">
                 <a class="add_pricing_rule" data-index="<?php echo $index; ?>" data-name="<?php echo $name; ?>"><img
                             src="<?php echo WC_Dynamic_Pricing::plugin_url() . '/assets/images/add.png'; ?>"
-                            title="<?php _e( 'add another rule', 'wc_pricing' ); ?>" alt="<?php _e( 'add another rule', 'wc_pricing' ); ?>"
+                            title="<?php _e( 'add another rule', 'woocommerce-dynamic-pricing' ); ?>" alt="<?php _e( 'add another rule', 'woocommerce-dynamic-pricing' ); ?>"
                             style="cursor:pointer; margin:0 3px;"/></a><a <?php echo ( $index > 1 ) ? '' : 'style="display:none;"'; ?> class="delete_pricing_rule" data-index="<?php echo $index; ?>" data-name="<?php echo $name; ?>"><img
                             src="<?php echo WC_Dynamic_Pricing::plugin_url() . '/assets/images/remove.png'; ?>"
-                            title="<?php _e( 'add another rule', 'wc_pricing' ); ?>" alt="<?php _e( 'add another rule', 'wc_pricing' ); ?>"
+                            title="<?php _e( 'add another rule', 'woocommerce-dynamic-pricing' ); ?>" alt="<?php _e( 'add another rule', 'woocommerce-dynamic-pricing' ); ?>"
                             style="cursor:pointer; margin:0 3px;"/></a>
             </td>
         </tr>
@@ -429,39 +429,39 @@ class woocommerce_product_pricing_rules_admin {
 		?>
         <tr id="pricing_blockrule_row_<?php echo $name . '_' . $index; ?>">
             <td>
-                <input title="<?php _e( 'Apply this adjustment when the quantity in the cart starts at this value.  Use * for any.', 'wc_pricing' ); ?>" class="int_pricing_rule" id="pricing_rule_from_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index ?>][from]" value="<?php echo $rule['from']; ?>"/>
+                <input title="<?php _e( 'Apply this adjustment when the quantity in the cart starts at this value.  Use * for any.', 'woocommerce-dynamic-pricing' ); ?>" class="int_pricing_rule" id="pricing_rule_from_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index ?>][from]" value="<?php echo $rule['from']; ?>"/>
             </td>
             <td>
-                <input title="<?php _e( 'Apply the discount to this many items', 'wc_pricing' ); ?>" class="int_pricing_rule" id="pricing_blockrule_to_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index ?>][adjust]" value="<?php echo $rule['adjust']; ?>"/>
+                <input title="<?php _e( 'Apply the discount to this many items', 'woocommerce-dynamic-pricing' ); ?>" class="int_pricing_rule" id="pricing_blockrule_to_input_<?php echo $name . '_' . $index; ?>" type="text" name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index ?>][adjust]" value="<?php echo $rule['adjust']; ?>"/>
             </td>
 
             <td>
-                <select title="<?php _e( 'The type of adjustment to apply', 'wc_pricing' ); ?>" name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index; ?>][type]">
-                    <option <?php selected( 'fixed_adjustment', $rule['type'] ); ?> value="fixed_adjustment"><?php _e( 'Price Discount', 'wc_pricing' ); ?></option>
-                    <option <?php selected( 'percent_adjustment', $rule['type'] ); ?> value="percent_adjustment"><?php _e( 'Percentage Discount', 'wc_pricing' ); ?></option>
-                    <option <?php selected( 'fixed_price', $rule['type'] ); ?> value="fixed_price"><?php _e( 'Fixed Price', 'wc_pricing' ); ?></option>
+                <select title="<?php _e( 'The type of adjustment to apply', 'woocommerce-dynamic-pricing' ); ?>" name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index; ?>][type]">
+                    <option <?php selected( 'fixed_adjustment', $rule['type'] ); ?> value="fixed_adjustment"><?php _e( 'Price Discount', 'woocommerce-dynamic-pricing' ); ?></option>
+                    <option <?php selected( 'percent_adjustment', $rule['type'] ); ?> value="percent_adjustment"><?php _e( 'Percentage Discount', 'woocommerce-dynamic-pricing' ); ?></option>
+                    <option <?php selected( 'fixed_price', $rule['type'] ); ?> value="fixed_price"><?php _e( 'Fixed Price', 'woocommerce-dynamic-pricing' ); ?></option>
                 </select>
             </td>
 
             <td>
-                <input title="<?php _e( 'The value of the adjustment. Currency and percentage symbols are not required', 'wc_pricing' ); ?>" class="float_rule_number" id="pricing_blockrule_amount_input_<?php echo $name . '_' . $index; ?>" type="text"
+                <input title="<?php _e( 'The value of the adjustment. Currency and percentage symbols are not required', 'woocommerce-dynamic-pricing' ); ?>" class="float_rule_number" id="pricing_blockrule_amount_input_<?php echo $name . '_' . $index; ?>" type="text"
                        name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index; ?>][amount]" value="<?php echo $rule['amount']; ?>"/>
             </td>
 
             <td>
-                <select title="<?php _e( 'If the rule is repeating', 'wc_pricing' ); ?>" id="pricing_blockrule_type_value_<?php echo $name . '_' . $index; ?>" name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index; ?>][repeating]">
-                    <option <?php selected( 'no', $rule['repeating'] ); ?> value="no"><?php _e( 'No', 'wc_pricing' ); ?></option>
-                    <option <?php selected( 'yes', $rule['repeating'] ); ?> value="yes"><?php _e( 'Yes', 'wc_pricing' ); ?></option>
+                <select title="<?php _e( 'If the rule is repeating', 'woocommerce-dynamic-pricing' ); ?>" id="pricing_blockrule_type_value_<?php echo $name . '_' . $index; ?>" name="pricing_rules[<?php echo $name; ?>][blockrules][<?php echo $index; ?>][repeating]">
+                    <option <?php selected( 'no', $rule['repeating'] ); ?> value="no"><?php _e( 'No', 'woocommerce-dynamic-pricing' ); ?></option>
+                    <option <?php selected( 'yes', $rule['repeating'] ); ?> value="yes"><?php _e( 'Yes', 'woocommerce-dynamic-pricing' ); ?></option>
                 </select>
             </td>
 
             <td width="48">
                 <a class="add_pricing_blockrule" data-index="<?php echo $index; ?>" data-name="<?php echo $name; ?>"><img
                             src="<?php echo WC_Dynamic_Pricing::plugin_url() . '/assets/images/add.png'; ?>"
-                            title="<?php _e( 'add another rule', 'wc_pricing' ); ?>" alt="<?php _e( 'add another rule', 'wc_pricing' ); ?>"
+                            title="<?php _e( 'add another rule', 'woocommerce-dynamic-pricing' ); ?>" alt="<?php _e( 'add another rule', 'woocommerce-dynamic-pricing' ); ?>"
                             style="cursor:pointer; margin:0 3px;"/></a><a <?php echo ( $row_count > 1 ) ? '' : 'style="display:none;"'; ?> class="delete_pricing_blockrule" data-index="<?php echo $index; ?>" data-name="<?php echo $name; ?>"><img
                             src="<?php echo WC_Dynamic_Pricing::plugin_url() . '/assets/images/remove.png'; ?>"
-                            title="<?php _e( 'add another rule', 'wc_pricing' ); ?>" alt="<?php _e( 'add another rule', 'wc_pricing' ); ?>"
+                            title="<?php _e( 'add another rule', 'woocommerce-dynamic-pricing' ); ?>" alt="<?php _e( 'add another rule', 'woocommerce-dynamic-pricing' ); ?>"
                             style="cursor:pointer; margin:0 3px;"/></a>
             </td>
         </tr>
@@ -605,9 +605,9 @@ class woocommerce_product_pricing_rules_admin {
                     html += '</td>';
                     html += '<td>';
                     html += '<select id="pricing_rule_type_value_' + name + '_' + $index + '" name="pricing_rules[' + name + '][rules][' + $index + '][type]">';
-                    html += '<option value="price_discount">Price Discount</option>';
-                    html += '<option value="percentage_discount">Percentage Discount</option>';
-                    html += '<option value="fixed_price">Fixed Price</option>';
+                    html += '<option value="price_discount"><?php _e('Price Discount' ,'woocommerce-dynamic-pricing'); ?> </option>';
+                    html += '<option value="percentage_discount"><?php _e('Percentage Discount', 'woocommerce-dynamic-pricing'); ?></option>';
+                    html += '<option value="fixed_price"><?php _e('Fixed Price', 'woocommerce-dynamic-pricing'); ; ?></option>';
                     html += '</select>';
                     html += '</td>';
                     html += '<td>';
@@ -638,9 +638,9 @@ class woocommerce_product_pricing_rules_admin {
                     html += '</td>';
                     html += '<td>';
                     html += '<select name="pricing_rules[' + name + '][blockrules][' + $index + '][type]">';
-                    html += '<option value="price_discount">Price Discount</option>';
-                    html += '<option value="percentage_discount">Percentage Discount</option>';
-                    html += '<option value="fixed_price">Fixed Price</option>';
+                    html += '<option value="price_discount"><?php _e('Price Discount', 'woocommerce-dynamic-pricing'); ?></option>';
+                    html += '<option value="percentage_discount"><?php _e('Percentage Discount', 'woocommerce-dynamic-pricing'); ?></option>';
+                    html += '<option value="fixed_price"><?php _e('Fixed Price', 'woocommerce-dynamic-pricing'); ?></option>';
                     html += '</select>';
                     html += '</td>';
                     html += '<td>';
@@ -648,8 +648,8 @@ class woocommerce_product_pricing_rules_admin {
                     html += '</td>';
                     html += '<td>';
                     html += '<select name="pricing_rules[' + name + '][blockrules][' + $index + '][repeating]">';
-                    html += '<option value="no">No</option>';
-                    html += '<option value="yes">Yes</option>';
+                    html += '<option value="no"><?php _e('No', 'woocommerce-dynamic-pricing'); ?></option>';
+                    html += '<option value="yes"><?php _e('Yes','woocommercer-dynamic-pricing'); ?></option>';
                     html += '</select>';
                     html += '</td>';
                     html += '<td width="48">';
@@ -663,7 +663,7 @@ class woocommerce_product_pricing_rules_admin {
                 }
 
                 function DeleteRule(index, name) {
-                    if (confirm("Are you sure you would like to remove this price adjustment?")) {
+                    if (confirm("<?php _e('Are you sure you would like to remove this price adjustment?', 'woocommerce-dynamic-pricing'); ?>")) {
                         $('#pricing_rule_row_' + name + '_' + index).remove();
 
                         var $index = $('tbody tr', "#woocommerce-pricing-rules-table-" + name).length;
@@ -676,7 +676,7 @@ class woocommerce_product_pricing_rules_admin {
                 }
 
                 function DeleteBlockRule($tr, $table) {
-                    if (confirm("Are you sure you would like to remove this price adjustment?")) {
+                    if (confirm("<?php _e('Are you sure you would like to remove this price adjustment?', 'woocommerce-dynamic-pricing'); ?>")) {
                         $tr.remove();
 
                         var count = $('tr', $table).length;
@@ -689,7 +689,7 @@ class woocommerce_product_pricing_rules_admin {
                 }
 
                 function DeleteRuleSet(name) {
-                    if (confirm('Are you sure you would like to remove this dynamic price set?')) {
+                    if (confirm("<?php _e('Are you sure you would like to remove this price set?', 'woocommerce-dynamic-pricing'); ?>")) {
                         $('#woocommerce-pricing-ruleset-' + name).slideUp().remove();
                     }
                 }
