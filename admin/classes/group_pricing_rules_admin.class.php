@@ -87,7 +87,7 @@ class woocommerce_group_pricing_rules_admin {
 					</tbody>
 				</table>
 				<p class="submit">
-					<input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ) ?>" />
+					<input type="submit" class="button-primary" value="<?php _e( 'Save Changes', 'woocommerce-dynamic-pricing' ); ?>" />
 				</p>
 			</form>
 		</div>

@@ -12,6 +12,8 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 		return self::$instance;
 	}
 
+	private $_loaded_product_rules;//used to cache product rules
+
 	public function __construct( $module_id ) {
 		parent::__construct( $module_id );
 	}
@@ -187,10 +189,22 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 		//Need to process product rules that might have a 0 based quantity.
 
 		if ( $_product->get_type() == 'variation' ) {
-			$pricing_rule_sets = apply_filters( 'dynamic_pricing_product_rules', WC_Dynamic_Pricing_Compatibility::get_product_meta( wc_get_product($_product->get_parent_id()), '_pricing_rules' ) );
-
+			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
+				if ( ! isset( $this->_loaded_product_rules[ $_product->get_parent_id() ] ) ) {
+					$pricing_rule_sets                                         = apply_filters( 'dynamic_pricing_product_rules', WC_Dynamic_Pricing_Compatibility::get_product_meta( wc_get_product( $_product->get_parent_id() ), '_pricing_rules' ) );
+					$this->_loaded_product_rules[ $_product->get_parent_id() ] = $pricing_rule_sets;
+				}
+				$pricing_rule_sets = $this->_loaded_product_rules[ $_product->get_parent_id() ];
+			} else {
+				$pricing_rule_sets = apply_filters( 'dynamic_pricing_product_rules', WC_Dynamic_Pricing_Compatibility::get_product_meta( wc_get_product( $_product->parent->id ), '_pricing_rules' ) );
+			}
 		} else {
-			$pricing_rule_sets = apply_filters( 'dynamic_pricing_product_rules', WC_Dynamic_Pricing_Compatibility::get_product_meta( $_product, '_pricing_rules' ) );
+			if ( ! isset( $this->_loaded_product_rules[ $_product->get_id() ] ) ) {
+				$pricing_rule_sets = apply_filters( 'dynamic_pricing_product_rules', WC_Dynamic_Pricing_Compatibility::get_product_meta( $_product, '_pricing_rules' ) );
+				$this->_loaded_product_rules[ $_product->get_id() ] = $pricing_rule_sets;
+			}
+
+			$pricing_rule_sets = $this->_loaded_product_rules[ $_product->get_id() ];
 		}
 		if ( is_array( $pricing_rule_sets ) && sizeof( $pricing_rule_sets ) > 0 ) {
 			foreach ( $pricing_rule_sets as $pricing_rule_set ) {

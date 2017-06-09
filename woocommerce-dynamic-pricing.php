@@ -2,14 +2,16 @@
 
 /*
   Plugin Name: WooCommerce Dynamic Pricing
+  Woo: 18643:9a41775bb33843f52c93c922b0053986
   Plugin URI: https://woocommerce.com/products/dynamic-pricing/
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 3.0.3
+  Version: 3.0.9
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3
-  Tested up to: 4.7.3
-
+  Tested up to: 4.8
+  Text Domain: woocommerce-dynamic-pricing
+  Domain Path: /i18n/languages/
   Copyright: © 2009-2017 Lucas Stark.
   License: GNU General Public License v3.0
   License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -29,13 +31,6 @@ if ( ! function_exists( 'woothemes_queue_update' ) ) {
 woothemes_queue_update( plugin_basename( __FILE__ ), '9a41775bb33843f52c93c922b0053986', '18643' );
 
 if ( is_woocommerce_active() ) {
-
-
-	/**
-	 * Localisation
-	 * */
-	load_plugin_textdomain( 'wc_pricing', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-
 
 	/**
 	 * Boot up dynamic pricing
@@ -74,6 +69,13 @@ class WC_Dynamic_Pricing {
 	public $db_version = '2.1';
 
 	public function __construct() {
+
+		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+
+		add_filter( 'woocommerce_get_variation_prices_hash', array(
+			$this,
+			'on_woocommerce_get_variation_prices_hash'
+		), 99, 1 );
 
 		add_action( 'woocommerce_cart_loaded_from_session', array( $this, 'on_cart_loaded_from_session' ), 98, 1 );
 
@@ -192,6 +194,43 @@ class WC_Dynamic_Pricing {
 		}
 
 		add_filter( 'woocommerce_dynamic_pricing_get_rule_amount', array( $this, 'convert_decimals' ), 99, 4 );
+	}
+
+	/**
+	 * Localisation
+	 */
+	public function load_plugin_textdomain() {
+		$locale = apply_filters( 'plugin_locale', get_locale(), 'woocommerce-dynamic-pricing' );
+		$dir    = trailingslashit( WP_LANG_DIR );
+
+		load_textdomain( 'woocommerce-dynamic-pricing', $dir . 'woocommerce-dynamic-pricing/woocommerce-dynamic-pricing-' . $locale . '.mo' );
+		load_plugin_textdomain( 'woocommerce-dynamic-pricing', false, dirname( plugin_basename( __FILE__ ) ) . '/i18n/languages/' );
+	}
+
+	public function on_woocommerce_get_variation_prices_hash( $price_hash ) {
+
+		//Get a key based on role, since all rules use roles.
+		$session_id = null;
+
+		$roles = array();
+		if ( is_user_logged_in() ) {
+			$user = new WP_User( get_current_user_id() );
+			if ( ! empty( $user->roles ) && is_array( $user->roles ) ) {
+				foreach ( $user->roles as $role ) {
+					$roles[ $role ] = $role;
+				}
+			}
+		}
+
+		if ( ! empty( $roles ) ) {
+			$session_id = implode( '', $roles );
+		} else {
+			$session_id = 'norole';
+		}
+
+		$price_hash[] = $session_id;
+		return $price_hash;
+
 	}
 
 
@@ -319,11 +358,12 @@ class WC_Dynamic_Pricing {
 	}
 
 	public function on_cart_loaded_from_session( $cart ) {
-
-
 		$sorted_cart = array();
 		if ( sizeof( $cart->cart_contents ) > 0 ) {
 			foreach ( $cart->cart_contents as $cart_item_key => &$values ) {
+				if ( $values === null ) {
+					continue;
+				}
 
 				if ( isset( $cart->cart_contents[ $cart_item_key ]['discounts'] ) ) {
 					unset( $cart->cart_contents[ $cart_item_key ]['discounts'] );
@@ -331,6 +371,10 @@ class WC_Dynamic_Pricing {
 
 				$sorted_cart[ $cart_item_key ] = &$values;
 			}
+		}
+
+		if ( empty( $sorted_cart ) ) {
+			return;
 		}
 
 		//Sort the cart so that the lowest priced item is discounted when using block rules.
@@ -348,13 +392,17 @@ class WC_Dynamic_Pricing {
 	}
 
 	public function on_calculate_totals( $cart ) {
-
-
 		$sorted_cart = array();
 		if ( sizeof( $cart->cart_contents ) > 0 ) {
 			foreach ( $cart->cart_contents as $cart_item_key => $values ) {
-				$sorted_cart[ $cart_item_key ] = $values;
+				if ( $values != null ) {
+					$sorted_cart[ $cart_item_key ] = $values;
+				}
 			}
+		}
+
+		if ( empty( $sorted_cart ) ) {
+			return;
 		}
 
 		//Sort the cart so that the lowest priced item is discounted when using block rules.
@@ -394,7 +442,9 @@ class WC_Dynamic_Pricing {
 			return $base_price;
 		}
 
-
+		if ( class_exists( 'WCS_ATT_Product' ) && WCS_ATT_Product::is_subscription( $_product ) ) {
+			return $base_price;
+		}
 
 		$result_price = $base_price;
 		//Cart items are discounted when loaded from session, check to see if the call to get_price is from a cart item,
@@ -402,14 +452,25 @@ class WC_Dynamic_Pricing {
 		$cart_item = WC_Dynamic_Pricing_Context::instance()->get_cart_item_for_product( $_product );
 		if ( ! $force_calculation && $cart_item ) {
 			$this->remove_price_filters();
-			$cart_price = $cart_item['data']->get_price();
+
+			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
+				$cart_price = $cart_item['data']->get_price( 'edit' );
+			} else {
+				//Use price directly since 3.0.8 so extensions do not re-filter this value.
+				//https://woothemes.zendesk.com/agent/tickets/564481
+				$cart_price = $cart_item['data']->price;
+			}
+
 			$this->add_price_filters();
 			return $cart_price;
 		}
 
 		if ( is_object( $_product ) ) {
 			$cache_id = $_product->get_id() . spl_object_hash( $_product );
-			if ( isset( $this->cached_adjustments[ $cache_id ] ) && ! empty( $this->cached_adjustments[ $cache_id ] ) ) {
+
+			if ( isset( $this->cached_adjustments[ $cache_id ] ) && $this->cached_adjustments[ $cache_id ] === false ) {
+				return $base_price;
+			} elseif ( isset( $this->cached_adjustments[ $cache_id ] ) && ! empty( $this->cached_adjustments[ $cache_id ] ) ) {
 				return $this->cached_adjustments[ $cache_id ];
 			}
 
@@ -428,13 +489,15 @@ class WC_Dynamic_Pricing {
 				}
 			}
 
-			if ( $discount_price !== false ) {
-				$result_price = $discount_price;
+			if ( $discount_price !== false && $discount_price != $base_price ) {
+				$result_price                          = $discount_price;
+				$this->cached_adjustments[ $cache_id ] = $result_price;
 			} else {
-				$result_price = $base_price;
+				$result_price                          = $base_price;
+				$this->cached_adjustments[ $cache_id ] = false;
 			}
 
-			$this->cached_adjustments[ $cache_id ] = $result_price;
+
 		}
 
 
@@ -559,9 +622,9 @@ class WC_Dynamic_Pricing {
 		}
 
 		//TODO:  Review bundles and sales
-		if ( $product->is_type( 'bundle' ) && $product->per_product_pricing_active ) {
-			return $is_on_sale;
-		}
+		//if ( $product->is_type( 'bundle' ) && $product->per_product_pricing_active ) {
+		//return $is_on_sale;
+		//}
 
 		if ( $product->is_type( 'variable' ) ) {
 			$is_on_sale = false;
@@ -603,7 +666,9 @@ class WC_Dynamic_Pricing {
 		}
 
 
-		if ( isset( WC()->cart->cart_contents[ $cart_item_key ] ) ) {
+		if ( isset( WC()->cart->cart_contents[ $cart_item_key ] ) && !empty(WC()->cart->cart_contents[ $cart_item_key ] ) ) {
+
+
 			$_product = WC()->cart->cart_contents[ $cart_item_key ]['data'];
 
 			if ( apply_filters( 'wc_dynamic_pricing_get_use_sale_price', true, $_product ) ) {

@@ -91,7 +91,6 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 	}
 
 	public function adjust_cart( $cart ) {
-		global $woocommerce;
 
 		if ( $this->available_rulesets && count( $this->available_rulesets ) ) {
 
