@@ -37,8 +37,6 @@ class WC_Dynamic_Pricing_Context {
 	private $_products_in_cart;
 
 	private function __construct() {
-		$_products_in_cart = array();
-
 		add_filter( 'woocommerce_get_cart_item_from_session', array(
 			$this,
 			'on_get_cart_item_from_session'
@@ -59,7 +57,7 @@ class WC_Dynamic_Pricing_Context {
 			unset( $session_data['discounts'] );
 		}
 
-		$this->_products_in_cart[ $cart_item_key ] = &$session_data;
+		$this->_products_in_cart[ spl_object_hash( $session_data['data'] ) ] = $cart_item_key;
 
 		return $session_data;
 	}
@@ -73,14 +71,11 @@ class WC_Dynamic_Pricing_Context {
 
 		$cart_item_key = null;
 		$cart_item     = null;
-		if ( $this->_products_in_cart ) {
-			foreach ( $this->_products_in_cart as $key => &$cart_product ) {
-				if ( $product === $cart_product['data'] ) {
-					$cart_item_key = $key;
-					break;
-				}
-			}
+		$hash_key      = spl_object_hash( $product );
 
+		if ( $this->_products_in_cart && isset( $this->_products_in_cart[ $hash_key ] ) ) {
+
+			$cart_item_key = $this->_products_in_cart[ $hash_key ];
 			$cart_item = null;
 			if ( $cart_item_key ) {
 				$cart_item = WC()->cart->get_cart_item( $cart_item_key );
