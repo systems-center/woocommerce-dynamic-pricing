@@ -5,7 +5,7 @@
   Woo: 18643:9a41775bb33843f52c93c922b0053986
   Plugin URI: https://woocommerce.com/products/dynamic-pricing/
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 3.0.9
+  Version: 3.0.11
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3
@@ -99,7 +99,9 @@ class WC_Dynamic_Pricing {
 
 		//Paypal express
 		include 'integrations/paypal-express.php';
+		include 'integrations/woocommerce-product-bundles.php';
 		include 'classes/class-wc-dynamic-pricing-compatibility.php';
+
 
 		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
 			//Include helper classes
@@ -229,6 +231,7 @@ class WC_Dynamic_Pricing {
 		}
 
 		$price_hash[] = $session_id;
+
 		return $price_hash;
 
 	}
@@ -315,13 +318,24 @@ class WC_Dynamic_Pricing {
 	 * @return bool
 	 */
 	public function check_cart_coupon_is_valid( $valid, $coupon ) {
-		if ( ( ( method_exists( $coupon, 'get_exclude_sale_items' ) && $coupon->get_exclude_sale_items() ) || ( method_exists( $coupon, 'exclude_sale_items' ) && $coupon->exclude_sale_items() ) ) ) {
-			foreach ( WC()->cart->get_cart() as $values ) {
-				if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
-					return false;
+		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
+			if ( $coupon->get_exclude_sale_items() ) {
+				foreach ( WC()->cart->get_cart() as $values ) {
+					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
+						return false;
+					}
+				}
+			}
+		} else {
+			if ( $coupon->exclude_sale_items() ) {
+				foreach ( WC()->cart->get_cart() as $values ) {
+					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
+						return false;
+					}
 				}
 			}
 		}
+
 
 		return $valid;
 	}
@@ -462,6 +476,7 @@ class WC_Dynamic_Pricing {
 			}
 
 			$this->add_price_filters();
+
 			return $cart_price;
 		}
 
@@ -666,7 +681,7 @@ class WC_Dynamic_Pricing {
 		}
 
 
-		if ( isset( WC()->cart->cart_contents[ $cart_item_key ] ) && !empty(WC()->cart->cart_contents[ $cart_item_key ] ) ) {
+		if ( isset( WC()->cart->cart_contents[ $cart_item_key ] ) && ! empty( WC()->cart->cart_contents[ $cart_item_key ] ) ) {
 
 
 			$_product = WC()->cart->cart_contents[ $cart_item_key ]['data'];

@@ -168,6 +168,11 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 							continue;
 						}
 
+						$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $ctitem['data'], 'advanced_category', $this, $ctitem );
+						if ( ! $process_discounts ) {
+							continue;
+						}
+
 						$terms = $this->get_product_category_ids($product);
 						if ( count( array_intersect( $targets, $terms ) ) > 0 ) {
 
@@ -345,7 +350,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 					break;
 				case 'percentage_discount':
 
-					if ( $rule['amount'] > 1 ) {
+					if ( $rule['amount'] >= 1 ) {
 						$rule['amount'] = $rule['amount'] / 100;
 					}
 
