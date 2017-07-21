@@ -345,7 +345,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 					break;
 				case 'percentage_discount':
 
-					if ( $rule['amount'] > 1 ) {
+					if ( $rule['amount'] >= 1 ) {
 						$rule['amount'] = $rule['amount'] / 100;
 					}
 

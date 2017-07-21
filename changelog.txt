@@ -1,4 +1,13 @@
 *** Dynamic Pricing Changelog ***
+2017.07.18 - version 3.0.11
+    * Fix:  Fix intergration with Product Bundles.  Important Update
+
+2017.07.17 - version 3.0.10
+    * Fix:  Fix deprecated warning for $coupon->exclude_sale_items();
+    * Fix:  Fix issue where advanced category discounts would not accept 1% as the discount amount.
+    * Fix:  Fix issue where bundled products not priced individually would have rules applied when part of a bundle.
+    * Fix:  Add woocommerce_dynamic_pricing_process_product_discounts filter to special offer advanced category discount rules.
+
 2017.06.08 - version 3.0.9
     * Update:  Cache loaded product rules for performance improvements.
     * Update:  Update text domain to woocommerce-dynamic-pricing.
