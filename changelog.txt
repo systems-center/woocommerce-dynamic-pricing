@@ -1,4 +1,7 @@
 *** Dynamic Pricing Changelog ***
+2017.07.24 - version 3.0.12
+    * Update:  Update woocommerce_dynamic_pricing_process_product_discounts in advanced totals with correct parameters.
+
 2017.07.18 - version 3.0.11
     * Fix:  Fix intergration with Product Bundles.  Important Update
 
