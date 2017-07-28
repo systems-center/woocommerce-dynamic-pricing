@@ -5,7 +5,7 @@
   Woo: 18643:9a41775bb33843f52c93c922b0053986
   Plugin URI: https://woocommerce.com/products/dynamic-pricing/
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 3.0.11
+  Version: 3.0.12
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3

@@ -134,7 +134,7 @@ class WC_Dynamic_Pricing_Advanced_Totals extends WC_Dynamic_Pricing_Advanced_Bas
 					}
 				}
 			} else {
-				$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'advanced_totals', $this );
+				$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'advanced_totals', $this, $cart_item );
 				if ( $process_discounts ) {
 					$q = $cart_item['quantity'] ? $cart_item['quantity'] : 1;
 
