@@ -5,11 +5,11 @@
   Woo: 18643:9a41775bb33843f52c93c922b0053986
   Plugin URI: https://woocommerce.com/products/dynamic-pricing/
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 3.0.12
+  Version: 3.1.0
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3
-  Tested up to: 4.8
+  Tested up to: 4.8.1
   Text Domain: woocommerce-dynamic-pricing
   Domain Path: /i18n/languages/
   Copyright: © 2009-2017 Lucas Stark.
@@ -399,10 +399,6 @@ class WC_Dynamic_Pricing {
 			$module->adjust_cart( $sorted_cart );
 		}
 
-		//Reset the subtotal on ajax requests to force the mini cart to refresh itself.
-		if ( defined( 'WC_DOING_AJAX' ) && WC_DOING_AJAX ) {
-			$cart->subtotal = false;
-		}
 	}
 
 	public function on_calculate_totals( $cart ) {
