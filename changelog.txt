@@ -1,4 +1,7 @@
 *** Dynamic Pricing Changelog ***
+2017.08.29 - version 3.1.0
+    * Update:  No longer need to force re-calculate totals on session loaded, fixes issues with VAT Number Extension.
+
 2017.07.24 - version 3.0.12
     * Update:  Update woocommerce_dynamic_pricing_process_product_discounts in advanced totals with correct parameters.
 
