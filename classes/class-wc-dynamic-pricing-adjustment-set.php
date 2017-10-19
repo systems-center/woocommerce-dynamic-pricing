@@ -15,7 +15,7 @@ class WC_Dynamic_Pricing_Adjustment_Set {
 		if ( isset( $set_data['mode'] ) && $set_data['mode'] == 'block' ) {
 			$this->mode = 'block';
 
-			if ( ! empty( $set_data['blockrules'] ) ) {
+			if ( !empty( $set_data['blockrules'] ) ) {
 				$this->pricing_rules = $set_data['blockrules'];
 			}
 		} else {
@@ -23,6 +23,8 @@ class WC_Dynamic_Pricing_Adjustment_Set {
 
 			$this->pricing_rules = $set_data['rules'];
 		}
+
+
 	}
 
 	public function is_targeted_product( $product_id, $variation_id = false ) {
@@ -43,7 +45,7 @@ class WC_Dynamic_Pricing_Adjustment_Set {
 							if ( $condition['args']['applies_to'] == 'everyone' ) {
 								$result = 1;
 							} elseif ( $condition['args']['applies_to'] == 'unauthenticated' ) {
-								if ( ! is_user_logged_in() ) {
+								if ( !is_user_logged_in() ) {
 									$result = 1;
 								}
 							} elseif ( $condition['args']['applies_to'] == 'authenticated' ) {
@@ -90,11 +92,11 @@ class WC_Dynamic_Pricing_Adjustment_Set {
 			$to_date   = empty( $this->set_data['date_to'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $this->set_data['date_to'] ), false ) );
 			$now       = current_time( 'timestamp' );
 
-			if ( $from_date && $to_date && ! ( $now >= $from_date && $now <= $to_date ) ) {
+			if ( $from_date && $to_date && !( $now >= $from_date && $now <= $to_date ) ) {
 				$execute_rules = false;
-			} elseif ( $from_date && ! $to_date && ! ( $now >= $from_date ) ) {
+			} elseif ( $from_date && !$to_date && !( $now >= $from_date ) ) {
 				$execute_rules = false;
-			} elseif ( $to_date && ! $from_date && ! ( $now <= $to_date ) ) {
+			} elseif ( $to_date && !$from_date && !( $now <= $to_date ) ) {
 				$execute_rules = false;
 			}
 		}
@@ -104,6 +106,13 @@ class WC_Dynamic_Pricing_Adjustment_Set {
 
 	public function get_collector() {
 		return $this->set_data['collector'];
+	}
+
+	/**
+	 * @return WC_Dynamic_Pricing_Collector
+	 */
+	public function get_collector_object() {
+		return new WC_Dynamic_Pricing_Collector( $this->set_data['collector'] );
 	}
 
 }

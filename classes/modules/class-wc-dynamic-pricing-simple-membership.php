@@ -206,6 +206,8 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 
 			$pricing_rule_sets = $this->_loaded_product_rules[ $_product->get_id() ];
 		}
+
+
 		if ( is_array( $pricing_rule_sets ) && sizeof( $pricing_rule_sets ) > 0 ) {
 			foreach ( $pricing_rule_sets as $pricing_rule_set ) {
 				$execute_rules        = false;
@@ -309,7 +311,7 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 				}
 			} else {
 
-				$discounted_price = null;
+				$discounted_price = false;
 				if ( get_class( $_product ) == 'WC_Product' && $_product->is_type( 'variable' ) && $lowest_price ) {
 					$discounted_price = $lowest_price;
 				} elseif ( $applied_rule ) {
@@ -328,7 +330,7 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 			}
 		}
 
-		return $working_price;
+		return $working_price === null ? false : $working_price;
 	}
 
 	private function get_adjusted_price_by_product_rule( $rule, $price, $_product, $additional_price = false ) {

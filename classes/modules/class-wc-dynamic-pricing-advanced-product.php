@@ -27,57 +27,75 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 
 
 		foreach ( $temp_cart as $cart_item_key => $cart_item ) {
-			$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'advanced_product', $this, $cart_item );
-			if ( ! $process_discounts ) {
-				continue;
+			$adjustment = $this->get_cart_item_adjusted_price( $cart_item, $cart_item_key );
+
+			if ( $adjustment ) {
+				WC_Dynamic_Pricing::apply_cart_item_adjustment( $cart_item_key, $adjustment['original_price'], $adjustment['price_adjusted'], 'advanced_product', $adjustment['set_id'] );
 			}
 
-			if ( ! $this->is_cumulative( $cart_item, $cart_item_key ) ) {
-				if ( $this->is_item_discounted( $cart_item, $cart_item_key ) ) {
+		}
+	}
+
+	public function get_cart_item_adjusted_price( $cart_item, $cart_item_key, $original_price_override = false ) {
+		$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'advanced_product', $this, $cart_item );
+		if ( !$process_discounts ) {
+			return false;
+		}
+
+		if ( !$this->is_cumulative( $cart_item, $cart_item_key ) ) {
+			if ( $this->is_item_discounted( $cart_item, $cart_item_key ) ) {
+				return false;
+			}
+		}
+
+		$product_adjustment_sets = $this->get_pricing_rule_sets( $cart_item );
+		if ( $product_adjustment_sets && count( $product_adjustment_sets ) ) {
+
+			foreach ( $product_adjustment_sets as $set_id => $set ) {
+				if ( $set->mode == 'block' ) {
+					return false;
+				}
+
+				if ( $set->target_variations && isset( $cart_item['variation_id'] ) && !in_array( $cart_item['variation_id'], $set->target_variations ) ) {
 					continue;
 				}
-			}
 
-			$product_adjustment_sets = $this->get_pricing_rule_sets( $cart_item );
-			if ( $product_adjustment_sets && count( $product_adjustment_sets ) ) {
+				//check if this set is valid for the current user;
+				$is_valid_for_user = $set->is_valid_for_user();
 
-				foreach ( $product_adjustment_sets as $set_id => $set ) {
+				if ( !( $is_valid_for_user ) ) {
+					continue;
+				}
 
-					if ( $set->target_variations && isset( $cart_item['variation_id'] ) && ! in_array( $cart_item['variation_id'], $set->target_variations ) ) {
-						continue;
-					}
-
-					//check if this set is valid for the current user;
-					$is_valid_for_user = $set->is_valid_for_user();
-
-					if ( ! ( $is_valid_for_user ) ) {
-						continue;
-					}
-
+				if ( $original_price_override === false ) {
 					$original_price = $this->get_price_to_discount( $cart_item, $cart_item_key );
-					if ( $original_price ) {
-						$price_adjusted = false;
-						if ( $set->mode == 'block' ) {
-							$price_adjusted = $this->get_block_adjusted_price( $set, $original_price, $cart_item );
-						} elseif ( $set->mode == 'bulk' ) {
-							$price_adjusted = $this->get_adjusted_price( $set, $original_price, $cart_item );
-						}
+				} else {
+					$original_price = $original_price_override;
+				}
 
-						if ( $price_adjusted !== false && floatval( $original_price ) != floatval( $price_adjusted ) ) {
-							WC_Dynamic_Pricing::apply_cart_item_adjustment( $cart_item_key, $original_price, $price_adjusted, 'advanced_product', $set_id );
-							break;
-						}
+				if ( $original_price ) {
+					$price_adjusted = $this->get_adjusted_price( $set, $original_price, $cart_item );
+
+					if ( $price_adjusted !== false && floatval( $original_price ) != floatval( $price_adjusted ) ) {
+						return array(
+							'set_id'         => $set_id,
+							'original_price' => $original_price,
+							'price_adjusted' => $price_adjusted
+						);
 					}
+
 				}
 			}
 		}
+
+		return false;
 	}
 
 	protected function get_pricing_rule_sets( $cart_item ) {
 
-		$product = wc_get_product($cart_item['product_id']);
+		$product = wc_get_product( $cart_item['product_id'] );
 
-		$pricing_rule_sets = apply_filters( 'wc_dynamic_pricing_get_product_pricing_rule_sets', WC_Dynamic_Pricing_Compatibility::get_product_meta($product, '_pricing_rules' ), $product->get_id(), $this );
+		$pricing_rule_sets = apply_filters( 'wc_dynamic_pricing_get_product_pricing_rule_sets', WC_Dynamic_Pricing_Compatibility::get_product_meta( $product, '_pricing_rules' ), $product->get_id(), $this );
 		$pricing_rule_sets = apply_filters( 'wc_dynamic_pricing_get_cart_item_pricing_rule_sets', $pricing_rule_sets, $cart_item );
 		$sets              = array();
 		if ( $pricing_rule_sets ) {

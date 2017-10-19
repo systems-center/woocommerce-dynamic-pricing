@@ -5,8 +5,6 @@ bower_components
 node_modules
 dist
 *.map
-assets/css/*.css
 inc/admin-schemes/css/*.css
-assets/js/*.js
 languages/*.pot
 rtl.css
