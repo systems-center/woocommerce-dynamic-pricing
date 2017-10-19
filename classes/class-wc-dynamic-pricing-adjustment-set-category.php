@@ -37,4 +37,12 @@ class WC_Dynamic_Pricing_Adjustment_Set_Category extends WC_Dynamic_Pricing_Adju
 		}
 	}
 
+
+	/**
+	 * @return WC_Dynamic_Pricing_Collector_Category
+	 */
+	public function get_collector_object() {
+		return new WC_Dynamic_Pricing_Collector_Category( $this->set_data['collector'] );
+	}
+
 }
