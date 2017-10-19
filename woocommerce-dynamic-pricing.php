@@ -5,11 +5,11 @@
   Woo: 18643:9a41775bb33843f52c93c922b0053986
   Plugin URI: https://woocommerce.com/products/dynamic-pricing/
   Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 3.1.0
+  Version: 3.1.1
   Author: Lucas Stark
   Author URI: http://lucasstark.com
   Requires at least: 3.3
-  Tested up to: 4.8.1
+  Tested up to: 4.8.2
   Text Domain: woocommerce-dynamic-pricing
   Domain Path: /i18n/languages/
   Copyright: © 2009-2017 Lucas Stark.
@@ -21,7 +21,7 @@
 /**
  * Required functions
  */
-if ( ! function_exists( 'woothemes_queue_update' ) ) {
+if ( !function_exists( 'woothemes_queue_update' ) ) {
 	require_once( 'woo-includes/woo-functions.php' );
 }
 
@@ -103,19 +103,25 @@ class WC_Dynamic_Pricing {
 		include 'classes/class-wc-dynamic-pricing-compatibility.php';
 
 
-		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
+		if ( !is_admin() || defined( 'DOING_AJAX' ) ) {
 			//Include helper classes
 			include 'classes/class-wc-dynamic-pricing-context.php';
 			include 'classes/class-wc-dynamic-pricing-counter.php';
 			include 'classes/class-wc-dynamic-pricing-tracker.php';
 			include 'classes/class-wc-dynamic-pricing-cart-query.php';
 
+			//Include the collectors.
+			include 'classes/collectors/class-wc-dynamic-pricing-collector.php';
+			include 'classes/collectors/class-wc-dynamic-pricing-collector-category.php';
 
+
+			//Include the adjustment sets.
 			include 'classes/class-wc-dynamic-pricing-adjustment-set.php';
 			include 'classes/class-wc-dynamic-pricing-adjustment-set-category.php';
 			include 'classes/class-wc-dynamic-pricing-adjustment-set-product.php';
 			include 'classes/class-wc-dynamic-pricing-adjustment-set-totals.php';
 			include 'classes/class-wc-dynamic-pricing-adjustment-set-taxonomy.php';
+
 
 			//The base pricing module.
 			include 'classes/modules/class-wc-dynamic-pricing-module-base.php';
@@ -217,14 +223,14 @@ class WC_Dynamic_Pricing {
 		$roles = array();
 		if ( is_user_logged_in() ) {
 			$user = new WP_User( get_current_user_id() );
-			if ( ! empty( $user->roles ) && is_array( $user->roles ) ) {
+			if ( !empty( $user->roles ) && is_array( $user->roles ) ) {
 				foreach ( $user->roles as $role ) {
 					$roles[ $role ] = $role;
 				}
 			}
 		}
 
-		if ( ! empty( $roles ) ) {
+		if ( !empty( $roles ) ) {
 			$session_id = implode( '', $roles );
 		} else {
 			$session_id = 'norole';
@@ -304,9 +310,16 @@ class WC_Dynamic_Pricing {
 
 	public function check_coupon_is_valid( $valid, $product, $coupon, $values ) {
 
-		if ( ( ( method_exists( $coupon, 'get_exclude_sale_items' ) && $coupon->get_exclude_sale_items() ) || ( method_exists( $coupon, 'exclude_sale_items' ) && $coupon->exclude_sale_items() ) ) && isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
-			$valid = false;
+		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
+			if ( $coupon->get_exclude_sale_items() && isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
+				$valid = false;
+			}
+		} else {
+			if ( $coupon->exclude_sale_items() && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
+				$valid = false;
+			}
 		}
+
 
 		return $valid;
 	}
@@ -321,7 +334,7 @@ class WC_Dynamic_Pricing {
 		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
 			if ( $coupon->get_exclude_sale_items() ) {
 				foreach ( WC()->cart->get_cart() as $values ) {
-					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
+					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
 						return false;
 					}
 				}
@@ -329,7 +342,7 @@ class WC_Dynamic_Pricing {
 		} else {
 			if ( $coupon->exclude_sale_items() ) {
 				foreach ( WC()->cart->get_cart() as $values ) {
-					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
+					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
 						return false;
 					}
 				}
@@ -391,8 +404,9 @@ class WC_Dynamic_Pricing {
 			return;
 		}
 
+
 		//Sort the cart so that the lowest priced item is discounted when using block rules.
-		@uasort( $sorted_cart, 'WC_Dynamic_Pricing_Cart_Query::sort_by_price' );
+		uasort( $sorted_cart, 'WC_Dynamic_Pricing_Cart_Query::sort_by_price' );
 
 		$modules = apply_filters( 'wc_dynamic_pricing_load_modules', $this->modules );
 		foreach ( $modules as $module ) {
@@ -460,7 +474,15 @@ class WC_Dynamic_Pricing {
 		//Cart items are discounted when loaded from session, check to see if the call to get_price is from a cart item,
 		//if so, return the price on the cart item as it currently is.
 		$cart_item = WC_Dynamic_Pricing_Context::instance()->get_cart_item_for_product( $_product );
-		if ( ! $force_calculation && $cart_item ) {
+		if ( !$force_calculation && $cart_item ) {
+
+			//If no discounts applied just return the price passed to us.
+			//This is to solve subscriptions passing the sign up fee though this filter.
+			if ( !isset( $cart_item['discounts'] ) ) {
+				return $base_price;
+			}
+
+
 			$this->remove_price_filters();
 
 			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
@@ -481,7 +503,7 @@ class WC_Dynamic_Pricing {
 
 			if ( isset( $this->cached_adjustments[ $cache_id ] ) && $this->cached_adjustments[ $cache_id ] === false ) {
 				return $base_price;
-			} elseif ( isset( $this->cached_adjustments[ $cache_id ] ) && ! empty( $this->cached_adjustments[ $cache_id ] ) ) {
+			} elseif ( isset( $this->cached_adjustments[ $cache_id ] ) && !empty( $this->cached_adjustments[ $cache_id ] ) ) {
 				return $this->cached_adjustments[ $cache_id ];
 			}
 
@@ -575,7 +597,7 @@ class WC_Dynamic_Pricing {
 		$tax_display_mode = get_option( 'woocommerce_tax_display_shop' );
 
 		$children = $product->get_children();
-		if ( isset( $children ) && ! empty( $children ) ) {
+		if ( isset( $children ) && !empty( $children ) ) {
 			foreach ( $children as $variation_id ) {
 				if ( $display ) {
 					$variation = wc_get_product( $variation_id );
@@ -647,7 +669,7 @@ class WC_Dynamic_Pricing {
 
 			$diff = array_diff_assoc( $regular, $actual_prices );
 
-			if ( ! empty( $diff ) ) {
+			if ( !empty( $diff ) ) {
 				$is_on_sale = true;
 			}
 		} else {
@@ -677,7 +699,7 @@ class WC_Dynamic_Pricing {
 		}
 
 
-		if ( isset( WC()->cart->cart_contents[ $cart_item_key ] ) && ! empty( WC()->cart->cart_contents[ $cart_item_key ] ) ) {
+		if ( isset( WC()->cart->cart_contents[ $cart_item_key ] ) && !empty( WC()->cart->cart_contents[ $cart_item_key ] ) ) {
 
 
 			$_product = WC()->cart->cart_contents[ $cart_item_key ]['data'];
@@ -694,7 +716,7 @@ class WC_Dynamic_Pricing {
 				WC()->cart->cart_contents[ $cart_item_key ]['data']->base_price = $adjusted_price;
 			}
 
-			if ( ! isset( WC()->cart->cart_contents[ $cart_item_key ]['discounts'] ) ) {
+			if ( !isset( WC()->cart->cart_contents[ $cart_item_key ]['discounts'] ) ) {
 
 				$discount_data                                           = array(
 					'by'                => array( $module ),
@@ -769,7 +791,7 @@ class WC_Dynamic_Pricing {
 function wc_dynamic_pricing_is_groups_active() {
 	$result = false;
 	$result = in_array( 'groups/groups.php', (array) get_option( 'active_plugins', array() ) );
-	if ( ! $result && is_multisite() ) {
+	if ( !$result && is_multisite() ) {
 		$plugins = get_site_option( 'active_sitewide_plugins' );
 		$result  = isset( $plugins['groups/groups.php'] );
 	}
@@ -780,7 +802,7 @@ function wc_dynamic_pricing_is_groups_active() {
 function wc_dynamic_pricing_is_memberships_active() {
 	$result = false;
 	$result = in_array( 'woocommerce-memberships/woocommerce-memberships.php', (array) get_option( 'active_plugins', array() ) );
-	if ( ! $result && is_multisite() ) {
+	if ( !$result && is_multisite() ) {
 		$plugins = get_site_option( 'active_sitewide_plugins' );
 		$result  = isset( $plugins['woocommerce-memberships/woocommerce-memberships.php'] );
 	}
@@ -791,7 +813,7 @@ function wc_dynamic_pricing_is_memberships_active() {
 function wc_dynamic_pricing_is_brands_active() {
 	$result = false;
 	$result = in_array( 'woocommerce-brands/woocommerce-brands.php', (array) get_option( 'active_plugins', array() ) );
-	if ( ! $result && is_multisite() ) {
+	if ( !$result && is_multisite() ) {
 		$plugins = get_site_option( 'active_sitewide_plugins' );
 		$result  = isset( $plugins['woocommerce-brands/woocommerce-brands.php'] );
 	}

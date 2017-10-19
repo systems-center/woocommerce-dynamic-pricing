@@ -28,7 +28,7 @@ class WC_Dynamic_Pricing_Simple_Product extends WC_Dynamic_Pricing_Simple_Base {
 	}
 
 	public function get_discounted_price_for_shop( $product, $working_price ) {
-		return $working_price;
+		return false;
 	}
 
 }
