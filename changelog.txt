@@ -1,4 +1,7 @@
 *** Dynamic Pricing Changelog ***
+2017.10.24 - version 3.1.2
+    * Fix: Fix mini-cart refresh since WC 3.2
+
 2017.10.03 - version 3.1.1
     * Fix:  Fix issue where Special Offer rules were not set as valid for valid users.
     * Update:  Added .pot files for translators
