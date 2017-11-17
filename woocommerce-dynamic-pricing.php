@@ -1,20 +1,22 @@
 <?php
 
 /*
-  Plugin Name: WooCommerce Dynamic Pricing
-  Woo: 18643:9a41775bb33843f52c93c922b0053986
-  Plugin URI: https://woocommerce.com/products/dynamic-pricing/
-  Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
-  Version: 3.1.1
-  Author: Lucas Stark
-  Author URI: http://lucasstark.com
-  Requires at least: 3.3
-  Tested up to: 4.8.2
-  Text Domain: woocommerce-dynamic-pricing
-  Domain Path: /i18n/languages/
-  Copyright: © 2009-2017 Lucas Stark.
-  License: GNU General Public License v3.0
-  License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * Plugin Name: WooCommerce Dynamic Pricing
+ * Woo: 18643:9a41775bb33843f52c93c922b0053986
+ * Plugin URI: https://woocommerce.com/products/dynamic-pricing/
+ * Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
+ * Version: 3.1.2
+ * Author: Lucas Stark
+ * Author URI: http://lucasstark.com
+ * Requires at least: 3.3
+ * Tested up to: 4.8.2
+ * Text Domain: woocommerce-dynamic-pricing
+ * Domain Path: /i18n/languages/
+ * Copyright: © 2009-2017 Lucas Stark.
+ * License: GNU General Public License v3.0
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * WC requires at least: 3.0.0
+ * WC tested up to: 3.2.1
  */
 
 
@@ -436,6 +438,12 @@ class WC_Dynamic_Pricing {
 		foreach ( $modules as $module ) {
 			$module->adjust_cart( $sorted_cart );
 		}
+
+		// Force calculation of totals so that they are updated in mini-cart
+		if (defined('WC_DOING_AJAX') && WC_DOING_AJAX && !empty($_REQUEST['wc-ajax']) && $_REQUEST['wc-ajax'] === 'get_refreshed_fragments') {
+			$cart->subtotal = false;
+		}
+
 	}
 
 	public function on_get_composite_price( $base_price, $_product ) {
