@@ -6,5 +6,4 @@ node_modules
 dist
 *.map
 inc/admin-schemes/css/*.css
-languages/*.pot
 rtl.css

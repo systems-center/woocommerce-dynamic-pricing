@@ -10,7 +10,7 @@ class woocommerce_taxonomy_pricing_rules_admin {
 	public function __construct($taxonomy) {
 	    $this->taxonomy = $taxonomy;
 
-		add_action( 'init', array(&$this, 'on_init') );
+		add_action( 'init', array(&$this, 'on_init'), 999 );
 		add_action( 'admin_enqueue_scripts', array(&$this, 'admin_enqueue_scripts'), 100 );
 	}
 
@@ -488,7 +488,7 @@ class woocommerce_taxonomy_pricing_rules_admin {
 				<td>
 					<select id="pricing_rule_type_value_<?php echo $name . '_' . $index; ?>" name="pricing_rules[<?php echo $name; ?>][rules][<?php echo $index; ?>][type]">
 						<option <?php selected( 'price_discount', $rule['type'] ); ?> value="price_discount"><?php _e('Price Discount' , 'woocommerce-dynamic-pricing' ); ?></option>
-						<option <?php selected( 'percentage_discount', $rule['type'] ); ?> value="percentage_discount"><?php _('Percentage Discount' , 'woocommerce-dynamic-pricing' ); ?></option>
+						<option <?php selected( 'percentage_discount', $rule['type'] ); ?> value="percentage_discount"><?php _e('Percentage Discount' , 'woocommerce-dynamic-pricing' ); ?></option>
 						<option <?php selected( 'fixed_price', $rule['type'] ); ?> value="fixed_price"><?php _e('Fixed Price' , 'woocommerce-dynamic-pricing' ); ?></option>
 					</select>
 				</td>

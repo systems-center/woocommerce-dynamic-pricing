@@ -634,6 +634,14 @@ if ( ! class_exists( 'WC_Dynamic_Pricing_Compatibility' ) ) :
 			return self::get_wc_version() && version_compare( self::get_wc_version(), $version, '>' );
 		}
 
+		public static function is_wc_version($version){
+			return self::get_wc_version() && version_compare( self::get_wc_version(), $version, '=' );
+		}
+
+		public static function is_wc_version_lte($version){
+			return self::get_wc_version() && version_compare( self::get_wc_version(), $version, '<=' );
+		}
+
 	}
 
 endif; // Class exists check
