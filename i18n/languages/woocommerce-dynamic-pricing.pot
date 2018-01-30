@@ -2,10 +2,10 @@
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: WooCommerce Dynamic Pricing 3.1.2\n"
+"Project-Id-Version: WooCommerce Dynamic Pricing 3.1.3\n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/woocommerce-dynamic-pricing\n"
-"POT-Creation-Date: 2017-10-20 14:52:54+00:00\n"
+"POT-Creation-Date: 2017-12-07 14:08:39+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -246,9 +246,9 @@ msgid "Add Category Pricing"
 msgstr ""
 
 #: admin/classes/category_pricing_rules_admin.class.php:184
-#: admin/classes/store_pricing_rules_admin.class.php:92
+#: admin/classes/store_pricing_rules_admin.class.php:109
 #: dist/woocommerce-dynamic-pricing/admin/classes/category_pricing_rules_admin.class.php:184
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:92
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:109
 msgid "Category Pricing"
 msgstr ""
 
@@ -607,11 +607,11 @@ msgstr ""
 #: admin/classes/product_pricing_rules_admin.class.php:15
 #: admin/classes/product_pricing_rules_admin.class.php:19
 #: admin/classes/product_pricing_rules_admin.class.php:22
-#: admin/classes/store_pricing_rules_admin.class.php:61
+#: admin/classes/store_pricing_rules_admin.class.php:73
 #: dist/woocommerce-dynamic-pricing/admin/classes/product_pricing_rules_admin.class.php:15
 #: dist/woocommerce-dynamic-pricing/admin/classes/product_pricing_rules_admin.class.php:19
 #: dist/woocommerce-dynamic-pricing/admin/classes/product_pricing_rules_admin.class.php:22
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:61
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:73
 msgid "Dynamic Pricing"
 msgstr ""
 
@@ -727,13 +727,13 @@ msgstr ""
 msgid "add another rule"
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:78
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:78
+#: admin/classes/store_pricing_rules_admin.class.php:91
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:91
 msgid "Order Totals Pricing"
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:79
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:79
+#: admin/classes/store_pricing_rules_admin.class.php:92
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:92
 msgid ""
 "Order Totals pricing allows you to configure price adjustments for the "
 "entire store based on the total order amount.  This is the last discount "
@@ -741,20 +741,20 @@ msgid ""
 "items, these rules will not be applied to the cart."
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:85
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:85
+#: admin/classes/store_pricing_rules_admin.class.php:100
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:100
 msgid "Role Pricing"
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:86
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:86
+#: admin/classes/store_pricing_rules_admin.class.php:101
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:101
 msgid ""
 "Role pricing allows you to configure price adjustments for the entire store "
 "based on a users role."
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:93
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:93
+#: admin/classes/store_pricing_rules_admin.class.php:110
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:110
 msgid ""
 "Use bulk category pricing to configure bulk price adjustments based on a "
 "product's category. Category pricing rules will apply before Membership "
@@ -763,13 +763,13 @@ msgid ""
 "behavior."
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:97
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:97
+#: admin/classes/store_pricing_rules_admin.class.php:114
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:114
 msgid "Advanced Category Pricing"
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:98
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:98
+#: admin/classes/store_pricing_rules_admin.class.php:115
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:115
 msgid ""
 "Use advanced category pricing to configure price adjustments on items in a "
 "customers cart based on quantities.  Adjustments are calculated when the "
@@ -778,18 +778,18 @@ msgid ""
 "adjustments take precedence over bulk category adjustments."
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:107
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:107
+#: admin/classes/store_pricing_rules_admin.class.php:126
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:126
 msgid "Group Pricing"
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:117
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:117
+#: admin/classes/store_pricing_rules_admin.class.php:138
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:138
 msgid "Brand Pricing"
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:118
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:118
+#: admin/classes/store_pricing_rules_admin.class.php:139
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:139
 msgid ""
 "Use bulk brand pricing to configure bulk price adjustments based on a "
 "product's brand. Brand pricing rules will apply before Membership "
@@ -798,13 +798,13 @@ msgid ""
 "behavior."
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:122
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:122
+#: admin/classes/store_pricing_rules_admin.class.php:143
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:143
 msgid "Advanced Brand Pricing"
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:123
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:123
+#: admin/classes/store_pricing_rules_admin.class.php:144
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:144
 msgid ""
 "Use advanced brand pricing to configure price adjustments on items in a "
 "customers cart based on quantities.  Adjustments are calculated when the "
@@ -814,17 +814,17 @@ msgid ""
 "brand adjustments."
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:309
-#: admin/classes/store_pricing_rules_admin.class.php:382
-#: admin/classes/store_pricing_rules_admin.class.php:434
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:309
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:382
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:434
+#: admin/classes/store_pricing_rules_admin.class.php:385
+#: admin/classes/store_pricing_rules_admin.class.php:458
+#: admin/classes/store_pricing_rules_admin.class.php:510
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:385
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:458
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:510
 msgid "You must enter values for all quantity and amount fields"
 msgstr ""
 
-#: admin/classes/store_pricing_rules_admin.class.php:428
-#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:428
+#: admin/classes/store_pricing_rules_admin.class.php:504
+#: dist/woocommerce-dynamic-pricing/admin/classes/store_pricing_rules_admin.class.php:504
 msgid "Invalid totals configured"
 msgstr ""
 

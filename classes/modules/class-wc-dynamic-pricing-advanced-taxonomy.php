@@ -4,29 +4,29 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 
 	private static $instances;
 
-	public static function instance($taxonomy = 'product_brand') {
+	public static function instance( $taxonomy = 'product_brand' ) {
 		if ( self::$instances == null ) {
-		    self::$instances = array();
+			self::$instances = array();
 		}
 
-		if (!isset(self::$instances[$taxonomy])){
-            self::$instances[$taxonomy] = new WC_Dynamic_Pricing_Advanced_Taxonomy( 'advanced_taxonomy_' . $taxonomy, $taxonomy );
-        }
+		if ( !isset( self::$instances[ $taxonomy ] ) ) {
+			self::$instances[ $taxonomy ] = new WC_Dynamic_Pricing_Advanced_Taxonomy( 'advanced_taxonomy_' . $taxonomy, $taxonomy );
+		}
 
-		return self::$instances[$taxonomy];
+		return self::$instances[ $taxonomy ];
 	}
 
 	public $adjustment_sets;
-    public $taxonomy;
+	public $taxonomy;
 
 	public function __construct( $module_id, $taxonomy = 'product_brand' ) {
-	    $this->taxonomy = $taxonomy;
+		$this->taxonomy = $taxonomy;
 		parent::__construct( $module_id );
-		$sets = get_option( '_a_taxonomy_' . $this->taxonomy . '_pricing_rules'  );
+		$sets = get_option( '_a_taxonomy_' . $this->taxonomy . '_pricing_rules' );
 		if ( $sets && is_array( $sets ) && sizeof( $sets ) > 0 ) {
 			foreach ( $sets as $id => $set_data ) {
-				$obj_adjustment_set = new WC_Dynamic_Pricing_Adjustment_Set_Taxonomy( $id, $set_data, $this->taxonomy );
-				$this->adjustment_sets[$id] = $obj_adjustment_set;
+				$obj_adjustment_set           = new WC_Dynamic_Pricing_Adjustment_Set_Taxonomy( $id, $set_data, $this->taxonomy );
+				$this->adjustment_sets[ $id ] = $obj_adjustment_set;
 			}
 		}
 	}
@@ -35,13 +35,15 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 
 		if ( $this->adjustment_sets && count( $this->adjustment_sets ) ) {
 
-			$valid_sets = wp_list_filter( $this->adjustment_sets, array('is_valid_rule' => true, 'is_valid_for_user' => true) );
+			$valid_sets = wp_list_filter( $this->adjustment_sets, array( 'is_valid_rule'     => true,
+			                                                             'is_valid_for_user' => true
+			) );
 			if ( empty( $valid_sets ) ) {
 				return;
 			}
 
 			foreach ( $temp_cart as $cart_item_key => $values ) {
-				$temp_cart[$cart_item_key]['available_quantity'] = $values['quantity'];
+				$temp_cart[ $cart_item_key ]['available_quantity'] = $values['quantity'];
 			}
 
 			//Process block discounts first
@@ -55,7 +57,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 				$is_valid_for_user = $set->is_valid_for_user();
 
 
-				if ( !($is_valid_for_user) ) {
+				if ( !( $is_valid_for_user ) ) {
 					continue;
 				}
 
@@ -65,7 +67,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 				$targets = $set->targets;
 
 				$collector = $set->get_collector();
-				$q = 0;
+				$q         = 0;
 				if ( isset( $collector['args'] ) && isset( $collector['args']['cats'] ) && is_array( $collector['args']['cats'] ) ) {
 					foreach ( $collector['args']['cats'] as $cat_id ) {
 						$q += WC_Dynamic_Pricing_Counter::get_taxonomy_count( $cat_id, $this->taxonomy );
@@ -91,7 +93,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 				$mq = 0; //matched mixed quantity;
 
 				foreach ( $temp_cart as $cart_item_key => &$cart_item ) {
-					$terms = wp_get_post_terms( $cart_item['product_id'], $this->taxonomy, array('fields' => 'ids') );
+					$terms = wp_get_post_terms( $cart_item['product_id'], $this->taxonomy, array( 'fields' => 'ids' ) );
 					if ( count( array_intersect( $collector['args']['cats'], $terms ) ) > 0 ) {
 						if ( count( array_intersect( $targets, $terms ) ) > 0 ) {
 							$mq += $cart_item['available_quantity'];
@@ -109,30 +111,30 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 					}
 				}
 
-				$rt = $ct + $mt; //remaining targets. 
+				$rt  = $ct + $mt; //remaining targets.
 				$rcq = $cq; //remaining clean quantity
 				$rmq = $mq; //remaining mixed quantity
 
 				$tt = 0; //the total number of items we can discount. 
 				//for each block reduce the amount of remaining items which can make up a discount by the amount required. 
 				if ( $rcq || $rmq ) {
-					for ( $x = 0; $x < $b; $x++ ) {
+					for ( $x = 0; $x < $b; $x ++ ) {
 						//If the remaining clean quantity minus what is required to make a block is greater than 0 there are more clean quantity items remaining. 
 						//This means we don't have to eat into mixed quantities yet. 
 						if ( $rcq - $rule['from'] >= 0 ) {
 							$rcq -= $rule['from'];
-							$tt += $rule['adjust'];
+							$tt  += $rule['adjust'];
 							//If the total items that can be dicsounted is greater than the number of clean items to be discounted, reduce the 
 							//mixed quantity by the difference, because those items will be discounted and can not count towards making another discounted item. 
 							if ( $tt > $ct ) {
-								$rmq -= ($tt - $ct);
+								$rmq -= ( $tt - $ct );
 							}
 
 							if ( $tt > $mt + $ct ) {
 								$tt = $mt + $ct;
 							}
 
-							$rt -= ($ct + $mt) - $tt;
+							$rt -= ( $ct + $mt ) - $tt;
 						} else {
 							//how many items left over from clean quantities.  if we have a buy two get one free, we may have one quantity of clean item, and two mixed items. 
 							$l = $rcq ? $rule['from'] - $rcq : 0;
@@ -142,14 +144,14 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 									$tt += min( $rt - $l, $rule['adjust'] );
 								}
 
-								$rt -= ($ct + $mt) - $tt;
+								$rt -= ( $ct + $mt ) - $tt;
 							} elseif ( $rmq > 0 ) {
 								$rt -= $rule['from'];
 								//$rt -= ($ct + $mt) - $tt;
 								if ( $rt > 0 ) {
-									$tt += min( $rt, $rule['adjust'] );
-									$rt -= min( $rt, $rule['adjust'] );
-									$rmq = $rmq - $l - ($rule['adjust'] + $rule['from']);
+									$tt  += min( $rt, $rule['adjust'] );
+									$rt  -= min( $rt, $rule['adjust'] );
+									$rmq = $rmq - $l - ( $rule['adjust'] + $rule['from'] );
 								}
 							}
 
@@ -159,6 +161,10 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 
 
 					foreach ( $temp_cart as $cart_item_key => $ctitem ) {
+						if ( empty( $tt ) ) {
+							break;
+						}
+
 						$price_adjusted = false;
 
 						$original_price = $this->get_price_to_discount( $ctitem, $cart_item_key );
@@ -169,18 +175,18 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 						if ( empty( $op_check ) && $rule['type'] != 'fixed_adjustment' ) {
 							continue;
 						}
-						
-						$terms = wp_get_post_terms( $ctitem['product_id'], $this->taxonomy, array('fields' => 'ids') );
+
+						$terms = wp_get_post_terms( $ctitem['product_id'], $this->taxonomy, array( 'fields' => 'ids' ) );
 						if ( count( array_intersect( $targets, $terms ) ) > 0 ) {
 
 							$price_adjusted = $this->get_block_adjusted_price( $ctitem, $original_price, $rule, $tt );
 
 							if ( $tt > $ctitem['quantity'] ) {
-								$tt -= $ctitem['quantity'];
-								$temp_cart[$cart_item_key]['available_quantity'] = 0;
+								$tt                                                -= $ctitem['quantity'];
+								$temp_cart[ $cart_item_key ]['available_quantity'] = 0;
 							} else {
-								$temp_cart[$cart_item_key]['available_quantity'] = $ctitem['quantity'] - $tt;
-								$tt = 0;
+								$temp_cart[ $cart_item_key ]['available_quantity'] = $ctitem['quantity'] - $tt;
+								$tt                                                = 0;
 							}
 
 							if ( $price_adjusted !== false && floatval( $original_price ) != floatval( $price_adjusted ) ) {
@@ -202,7 +208,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 				//check if this set is valid for the current user;
 				$is_valid_for_user = $set->is_valid_for_user();
 
-				if ( !($is_valid_for_user) ) {
+				if ( !( $is_valid_for_user ) ) {
 					continue;
 				}
 
@@ -212,7 +218,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 
 				//Get the quantity to compare
 				$collector = $set->get_collector();
-				$q = 0;
+				$q         = 0;
 				foreach ( $temp_cart as $t_cart_item_key => $t_cart_item ) {
 
 					$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $t_cart_item['data'], 'advanced_' . $this->taxonomy, $this, $t_cart_item );
@@ -220,7 +226,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 						continue;
 					}
 
-					$terms = wp_get_post_terms( $t_cart_item['product_id'], $this->taxonomy, array('fields' => 'ids') );
+					$terms = wp_get_post_terms( $t_cart_item['product_id'], $this->taxonomy, array( 'fields' => 'ids' ) );
 					if ( count( array_intersect( $targets, $terms ) ) > 0 ) {
 						if ( !$this->is_cumulative( $t_cart_item, $t_cart_item_key ) ) {
 							if ( $this->is_item_discounted( $t_cart_item, $t_cart_item_key ) ) {
@@ -235,7 +241,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 							if ( isset( $collector['args'] ) && isset( $collector['args']['cats'] ) && is_array( $collector['args']['cats'] ) ) {
 								foreach ( $temp_cart as $lck => $l_cart_item ) {
 
-									if (apply_filters('woocommerce_dynamic_pricing_is_object_in_terms',  is_object_in_term( $l_cart_item['product_id'], $this->taxonomy, $collector['args']['cats'] ), $l_cart_item['product_id'], $collector['args']['cats'] ) ) {
+									if ( apply_filters( 'woocommerce_dynamic_pricing_is_object_in_terms', is_object_in_term( $l_cart_item['product_id'], $this->taxonomy, $collector['args']['cats'] ), $l_cart_item['product_id'], $collector['args']['cats'] ) ) {
 										if ( apply_filters( 'woocommerce_dynamic_pricing_count_' . $this->taxonomy . '_for_cart_item', true, $l_cart_item, $lck ) ) {
 											$q += (int) $l_cart_item['quantity'];
 										}
@@ -272,48 +278,48 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 			$a = $cart_item['quantity'];
 		}
 
-		$amount = apply_filters( 'woocommerce_dynamic_pricing_get_rule_amount', $rule['amount'], $rule, $cart_item, $this );
+		$amount       = apply_filters( 'woocommerce_dynamic_pricing_get_rule_amount', $rule['amount'], $rule, $cart_item, $this );
 		$num_decimals = apply_filters( 'woocommerce_dynamic_pricing_get_decimals', (int) get_option( 'woocommerce_price_num_decimals' ) );
 
 		switch ( $rule['type'] ) {
 			case 'fixed_adjustment':
-				$adjusted = floatval( $price ) - floatval( $amount );
-				$adjusted = $adjusted >= 0 ? $adjusted : 0;
-				$line_total = 0;
+				$adjusted            = floatval( $price ) - floatval( $amount );
+				$adjusted            = $adjusted >= 0 ? $adjusted : 0;
+				$line_total          = 0;
 				$full_price_quantity = $cart_item['quantity'] - $a;
 
 				$discount_quantity = $a;
 
-				$line_total = ($discount_quantity * $adjusted) + ($full_price_quantity * $price);
-				$result = $line_total / $cart_item['quantity'];
-				$result = $result >= 0 ? $result : 0;
+				$line_total = ( $discount_quantity * $adjusted ) + ( $full_price_quantity * $price );
+				$result     = $line_total / $cart_item['quantity'];
+				$result     = $result >= 0 ? $result : 0;
 
 				break;
 			case 'percent_adjustment':
-				$amount = $amount / 100;
-				$adjusted = round( floatval( $price ) - ( floatval( $amount ) * $price), (int) $num_decimals );
+				$amount     = $amount / 100;
+				$adjusted   = round( floatval( $price ) - ( floatval( $amount ) * $price ), (int) $num_decimals );
 				$line_total = 0;
 
 				$full_price_quantity = $cart_item['available_quantity'] - $a;
-				$discount_quantity = $a;
+				$discount_quantity   = $a;
 
-				$line_total = ($discount_quantity * $adjusted) + ($full_price_quantity * $price);
-				$result = $line_total / $cart_item['quantity'];
+				$line_total = ( $discount_quantity * $adjusted ) + ( $full_price_quantity * $price );
+				$result     = $line_total / $cart_item['quantity'];
 
 				if ( $cart_item['available_quantity'] != $cart_item['quantity'] ) {
-					
+
 				}
 
 				$result = $result >= 0 ? $result : 0;
 				break;
 			case 'fixed_price':
-				$adjusted = round( $amount, (int) $num_decimals );
-				$line_total = 0;
+				$adjusted            = round( $amount, (int) $num_decimals );
+				$line_total          = 0;
 				$full_price_quantity = $cart_item['quantity'] - $a;
-				$discount_quantity = $a;
-				$line_total = ($discount_quantity * $adjusted) + ($full_price_quantity * $price);
-				$result = $line_total / $cart_item['quantity'];
-				$result = $result >= 0 ? $result : 0;
+				$discount_quantity   = $a;
+				$line_total          = ( $discount_quantity * $adjusted ) + ( $full_price_quantity * $price );
+				$result              = $line_total / $cart_item['quantity'];
+				$result              = $result >= 0 ? $result : 0;
 
 				break;
 			default:
@@ -325,7 +331,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 	}
 
 	protected function get_bulk_adjusted_price( $cart_item, $price, $rule, $q ) {
-		$result = false;
+		$result       = false;
 		$num_decimals = apply_filters( 'woocommerce_dynamic_pricing_get_decimals', (int) get_option( 'woocommerce_price_num_decimals' ) );
 
 
@@ -341,7 +347,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 			switch ( $rule['type'] ) {
 				case 'price_discount':
 					$adjusted = floatval( $price ) - floatval( $rule['amount'] );
-					$result = $adjusted >= 0 ? $adjusted : 0;
+					$result   = $adjusted >= 0 ? $adjusted : 0;
 					break;
 				case 'percentage_discount':
 
@@ -349,7 +355,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 						$rule['amount'] = $rule['amount'] / 100;
 					}
 
-					$result = round( floatval( $price ) - ( floatval( $rule['amount'] ) * $price), (int) $num_decimals );
+					$result = round( floatval( $price ) - ( floatval( $rule['amount'] ) * $price ), (int) $num_decimals );
 					break;
 				case 'fixed_price':
 					if ( isset( $cart_item['_gform_total'] ) ) {
@@ -371,7 +377,7 @@ class WC_Dynamic_Pricing_Advanced_Taxonomy extends WC_Dynamic_Pricing_Advanced_B
 	}
 
 	public function get_adjusted_price( $cart_item_key, $cart_item ) {
-		
+
 	}
 
 }

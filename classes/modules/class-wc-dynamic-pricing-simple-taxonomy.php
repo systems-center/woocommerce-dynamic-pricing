@@ -2,26 +2,26 @@
 
 class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base {
 
-    private static $instances;
+	private static $instances;
 
-    public static function instance($taxonomy = 'product_brand') {
-        if ( self::$instances == null ) {
-            self::$instances = array();
-        }
+	public static function instance( $taxonomy = 'product_brand' ) {
+		if ( self::$instances == null ) {
+			self::$instances = array();
+		}
 
-        if (!isset(self::$instances[$taxonomy])){
-            self::$instances[$taxonomy] = new WC_Dynamic_Pricing_Simple_Taxonomy( 'simple_taxonomy_' . $taxonomy, $taxonomy );
-        }
+		if ( !isset( self::$instances[ $taxonomy ] ) ) {
+			self::$instances[ $taxonomy ] = new WC_Dynamic_Pricing_Simple_Taxonomy( 'simple_taxonomy_' . $taxonomy, $taxonomy );
+		}
 
-        return self::$instances[$taxonomy];
-    }
+		return self::$instances[ $taxonomy ];
+	}
 
 	public $available_advanced_rulesets = array();
 
 	public $taxonomy = '';
 
 	public function __construct( $module_id, $taxonomy ) {
-	    $this->taxonomy = $taxonomy;
+		$this->taxonomy = $taxonomy;
 		parent::__construct( $module_id );
 	}
 
@@ -81,11 +81,11 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 					$to_date   = empty( $this->set_data['date_to'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $this->set_data['date_to'] ), false ) );
 					$now       = current_time( 'timestamp' );
 
-					if ( $from_date && $to_date && ! ( $now >= $from_date && $now <= $to_date ) ) {
+					if ( $from_date && $to_date && !( $now >= $from_date && $now <= $to_date ) ) {
 						$execute_rules = false;
-					} elseif ( $from_date && ! $to_date && ! ( $now >= $from_date ) ) {
+					} elseif ( $from_date && !$to_date && !( $now >= $from_date ) ) {
 						$execute_rules = false;
-					} elseif ( $to_date && ! $from_date && ! ( $now <= $to_date ) ) {
+					} elseif ( $to_date && !$from_date && !( $now <= $to_date ) ) {
 						$execute_rules = false;
 					}
 				}
@@ -104,11 +104,11 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 			foreach ( $cart as $cart_item_key => $cart_item ) {
 				$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'simple_taxonomy_' . $this->taxonomy, $this, $cart_item );
-				if ( ! $process_discounts ) {
+				if ( !$process_discounts ) {
 					continue;
 				}
 
-				if ( ! $this->is_cumulative( $cart_item, $cart_item_key ) ) {
+				if ( !$this->is_cumulative( $cart_item, $cart_item_key ) ) {
 
 					if ( $this->is_item_discounted( $cart_item, $cart_item_key ) ) {
 						continue;
@@ -117,10 +117,10 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 				$original_price = $this->get_price_to_discount( $cart_item, $cart_item_key );
 
-				$_product         = $cart_item['data'];
-				$price_adjusted   = false;
-				$applied_rule     = false;
-				$applied_rule_set = false;
+				$_product            = $cart_item['data'];
+				$price_adjusted      = false;
+				$applied_rule        = false;
+				$applied_rule_set    = false;
 				$applied_rule_set_id = null;
 
 				foreach ( $this->available_rulesets as $set_id => $pricing_rule_set ) {
@@ -130,7 +130,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 						$temp = $this->get_adjusted_price( $rule, $original_price );
 
-						if ( ! $price_adjusted || $temp < $price_adjusted ) {
+						if ( !$price_adjusted || $temp < $price_adjusted ) {
 							$price_adjusted      = $temp;
 							$applied_rule        = $rule;
 							$applied_rule_set    = $pricing_rule_set;
@@ -146,9 +146,14 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 		}
 	}
 
-	public function is_applied_to_product( $_product, $cat_id = false ) {
-		if ( is_admin() && ! is_ajax() ) {
+	public function is_applied_to_product( $p, $cat_id = false ) {
+		if ( is_admin() && !is_ajax() ) {
 			return false;
+		}
+
+		$_product = $p;
+		if ( $p->get_type() == 'variation' ) {
+			$_product = wc_get_product( $p->get_parent_id() );
 		}
 
 		$process_discounts = false;
@@ -199,7 +204,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 					if ( $condition['args']['applies_to'] == 'everyone' ) {
 						$result = 1;
 					} elseif ( $condition['args']['applies_to'] == 'unauthenticated' ) {
-						if ( ! is_user_logged_in() ) {
+						if ( !is_user_logged_in() ) {
 							$result = 1;
 						}
 					} elseif ( $condition['args']['applies_to'] == 'authenticated' ) {
@@ -234,7 +239,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 		if ( $rulesets && count( $rulesets ) ) {
 			foreach ( $rulesets as $set_id => $pricing_rule_set ) {
-				if ( ! isset( $pricing_rule_set['mode'] ) || ( isset( $pricing_rule_set['mode'] ) && $pricing_rule_set['mode'] != 'block' ) ) {
+				if ( !isset( $pricing_rule_set['mode'] ) || ( isset( $pricing_rule_set['mode'] ) && $pricing_rule_set['mode'] != 'block' ) ) {
 					$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $_product, 'simple_taxonomy_' . $this->taxonomy, $this, array( 'data' => $_product ) );
 					if ( $process_discounts ) {
 						//Grab targets from advanced category discounts so we properly show 0 based discounts for targets, not for the collector category values. 
@@ -242,14 +247,14 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 						if ( $this->is_applied_to_product( $_product, $cats_to_check ) ) {
 							$rule = array_shift( $pricing_rule_set['rules'] );
 
-							if ( ! isset( $rule['from'] ) ) {
+							if ( !isset( $rule['from'] ) ) {
 								$rule['from'] = 0;
 							}
 
 							if ( $rule['from'] == '0' ) {
 								$temp = $this->get_adjusted_price( $rule, $working_price );
 
-								if ( ! $price_adjusted || $temp < $price_adjusted ) {
+								if ( !$price_adjusted || $temp < $price_adjusted ) {
 									$price_adjusted   = $temp;
 									$applied_rule     = $rule;
 									$applied_rule_set = $pricing_rule_set;

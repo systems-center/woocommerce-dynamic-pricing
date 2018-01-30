@@ -1,4 +1,16 @@
 *** Dynamic Pricing Changelog ***
+
+2017.11.22 - version 3.1.3
+    * Fix:  Check product exists before attempting to load pricing rules.
+    * Update:  Added filter, wc_dynamic_pricing_flag_is_on_sale, to indicate if the extension should flag adjusted products as on sale.
+                default is true.
+    * Update:  Added filter, wc_dynamic_pricing_check_coupons, to determine if Dynamic Pricing should check coupons excluding sale items for discounts.
+                default is true.
+    * Update:  Add full ability to use custom taxonomies as discount types.
+    * Fix:  Fix custom taxonomy counting for all custom taxonomies, including Product Brands.
+    * Fix:  Added compatibility with WC 3.2.4, 3.2.5
+
+
 2017.10.24 - version 3.1.2
     * Fix: Fix mini-cart refresh since WC 3.2
 

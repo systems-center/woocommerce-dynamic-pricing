@@ -495,7 +495,7 @@ class woocommerce_product_pricing_rules_admin {
                         set_index: set_index,
                         post:<?php echo isset( $_GET['post'] ) ? $_GET['post'] : 0; ?>,
                         action: 'create_empty_ruleset'
-                    }
+                    };
 
                     $.post(ajaxurl, data, function (response) {
                         $('#woocommerce-pricing-rules-wrap').append(response);
