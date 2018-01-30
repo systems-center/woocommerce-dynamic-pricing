@@ -5,18 +5,18 @@
  * Woo: 18643:9a41775bb33843f52c93c922b0053986
  * Plugin URI: https://woocommerce.com/products/dynamic-pricing/
  * Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
- * Version: 3.1.2
+ * Version: 3.1.3
  * Author: Lucas Stark
  * Author URI: http://lucasstark.com
  * Requires at least: 3.3
- * Tested up to: 4.8.2
+ * Tested up to: 4.9.1
  * Text Domain: woocommerce-dynamic-pricing
  * Domain Path: /i18n/languages/
  * Copyright: © 2009-2017 Lucas Stark.
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * WC requires at least: 3.0.0
- * WC tested up to: 3.2.1
+ * WC tested up to: 3.2.5
  */
 
 
@@ -179,12 +179,11 @@ class WC_Dynamic_Pricing {
 			//Initialize the FrontEnd UX modifications
 			WC_Dynamic_Pricing_FrontEnd_UX::init();
 
+			add_action( 'wp_loaded', array( $this, 'on_wp_loaded' ), 0 );
 
 			add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 0 );
 
-			//Filters for simple adjustment types
-			add_action( 'woocommerce_before_mini_cart', array( $this, 'remove_price_filters' ) );
-			add_action( 'woocommerce_after_mini_cart', array( $this, 'add_price_filters' ) );
+
 
 			add_filter( 'woocommerce_product_is_on_sale', array( $this, 'on_get_product_is_on_sale' ), 10, 2 );
 
@@ -253,6 +252,7 @@ class WC_Dynamic_Pricing {
 
 		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
 			//Filters the regular variation price
+
 			add_filter( 'woocommerce_product_variation_get_price', array(
 				$this,
 				'on_get_product_variation_price'
@@ -287,6 +287,16 @@ class WC_Dynamic_Pricing {
 	}
 
 
+	public function on_wp_loaded() {
+		// Force calculation of totals so that they are updated in mini-cart
+		if ( defined( 'WC_DOING_AJAX' ) && WC_DOING_AJAX && !empty( $_REQUEST['wc-ajax'] ) && ( $_REQUEST['wc-ajax'] === 'get_refreshed_fragments' || $_REQUEST['wc-ajax'] === 'add_to_cart' || $_REQUEST['wc-ajax'] == 'remove_from_cart' ) ) {
+			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version( '3.2.3' ) || WC_Dynamic_Pricing_Compatibility::is_wc_version( '3.2.2' ) ) {
+				WC()->session->set( 'cart_totals', null );
+			}
+		}
+	}
+
+
 	public function on_plugins_loaded() {
 
 		require_once 'classes/class-wc-dynamic-pricing-compatibility-functions.php';
@@ -313,6 +323,11 @@ class WC_Dynamic_Pricing {
 	public function check_coupon_is_valid( $valid, $product, $coupon, $values ) {
 
 		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
+
+			if ( !apply_filters( 'wc_dynamic_pricing_check_coupons', true ) ) {
+				return $valid;
+			}
+
 			if ( $coupon->get_exclude_sale_items() && isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
 				$valid = false;
 			}
@@ -335,6 +350,11 @@ class WC_Dynamic_Pricing {
 	public function check_cart_coupon_is_valid( $valid, $coupon ) {
 		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
 			if ( $coupon->get_exclude_sale_items() ) {
+
+				if ( !apply_filters( 'wc_dynamic_pricing_check_coupons', true ) ) {
+					return $valid;
+				}
+
 				foreach ( WC()->cart->get_cart() as $values ) {
 					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
 						return false;
@@ -415,6 +435,13 @@ class WC_Dynamic_Pricing {
 			$module->adjust_cart( $sorted_cart );
 		}
 
+		// Force calculation of totals so that they are updated in mini-cart
+		if ( defined( 'WC_DOING_AJAX' ) && WC_DOING_AJAX && !empty( $_REQUEST['wc-ajax'] ) && ( $_REQUEST['wc-ajax'] === 'get_refreshed_fragments' || $_REQUEST['wc-ajax'] === 'add_to_cart' || $_REQUEST['wc-ajax'] == 'remove_from_cart' ) ) {
+			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_lte( '3.2.1' ) ) {
+				$cart->subtotal = false;
+			}
+		}
+
 	}
 
 	public function on_calculate_totals( $cart ) {
@@ -437,11 +464,6 @@ class WC_Dynamic_Pricing {
 		$modules = apply_filters( 'wc_dynamic_pricing_load_modules', $this->modules );
 		foreach ( $modules as $module ) {
 			$module->adjust_cart( $sorted_cart );
-		}
-
-		// Force calculation of totals so that they are updated in mini-cart
-		if (defined('WC_DOING_AJAX') && WC_DOING_AJAX && !empty($_REQUEST['wc-ajax']) && $_REQUEST['wc-ajax'] === 'get_refreshed_fragments') {
-			$cart->subtotal = false;
 		}
 
 	}
@@ -515,22 +537,29 @@ class WC_Dynamic_Pricing {
 				return $this->cached_adjustments[ $cache_id ];
 			}
 
-			$discount_price = false;
-			$working_price  = $base_price;
+			$adjustment_applied = false;
+			$discount_price     = false;
+			$working_price      = $base_price;
 
 			$modules = apply_filters( 'wc_dynamic_pricing_load_modules', $this->modules );
 			foreach ( $modules as $module ) {
 				if ( $module->module_type == 'simple' ) {
 					//Make sure we are using the price that was just discounted.
-					$working_price = $discount_price ? $discount_price : $base_price;
+
 					$working_price = $module->get_product_working_price( $working_price, $_product );
 					if ( $working_price !== false ) {
 						$discount_price = $module->get_discounted_price_for_shop( $_product, $working_price );
+
+						if ( $discount_price && $discount_price != $working_price ) {
+							$working_price      = $discount_price;
+							$adjustment_applied = true;
+						}
+
 					}
 				}
 			}
 
-			if ( $discount_price !== false && $discount_price != $base_price ) {
+			if ( $adjustment_applied && $discount_price !== false && $discount_price != $base_price ) {
 				$result_price                          = $discount_price;
 				$this->cached_adjustments[ $cache_id ] = $result_price;
 			} else {
@@ -658,6 +687,11 @@ class WC_Dynamic_Pricing {
 	 * @return bool
 	 */
 	public function on_get_product_is_on_sale( $is_on_sale, $product ) {
+
+		if ( !apply_filters( 'wc_dynamic_pricing_flag_is_on_sale', true, $product ) ) {
+			return $is_on_sale;
+		}
+
 		if ( $is_on_sale ) {
 			return $is_on_sale;
 		}

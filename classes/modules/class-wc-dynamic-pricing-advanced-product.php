@@ -75,9 +75,13 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 
 	protected function get_pricing_rule_sets( $cart_item ) {
 
-		$product = wc_get_product($cart_item['product_id']);
+		$product = wc_get_product( $cart_item['product_id'] );
 
-		$pricing_rule_sets = apply_filters( 'wc_dynamic_pricing_get_product_pricing_rule_sets', WC_Dynamic_Pricing_Compatibility::get_product_meta($product, '_pricing_rules' ), $product->get_id(), $this );
+		if ( empty( $product ) ) {
+			return false;
+		}
+
+		$pricing_rule_sets = apply_filters( 'wc_dynamic_pricing_get_product_pricing_rule_sets', WC_Dynamic_Pricing_Compatibility::get_product_meta( $product, '_pricing_rules' ), $product->get_id(), $this );
 		$pricing_rule_sets = apply_filters( 'wc_dynamic_pricing_get_cart_item_pricing_rule_sets', $pricing_rule_sets, $cart_item );
 		$sets              = array();
 		if ( $pricing_rule_sets ) {
