@@ -45,6 +45,32 @@ if ( ! class_exists( 'WC_Dynamic_Pricing_Compatibility' ) ) :
 	 */
 	class WC_Dynamic_Pricing_Compatibility {
 
+
+		public static function get_parent( WC_Product $product ) {
+
+			if ( self::is_wc_version_gt('3.0.0' ) ) {
+				$parent = wc_get_product( $product->get_parent_id() );
+			} else {
+				$parent = $product->is_type( 'variation' ) ? wc_get_product( $product->id ) : false;
+			}
+
+			return $parent;
+		}
+
+
+		public static function get_parent_id( WC_Product $product ) {
+
+			$parent = self::get_parent($product);
+			$parent_id = 0;
+			if ( self::is_wc_version_gt('3.0.0' ) ) {
+				$parent_id = $parent->get_id();
+			} else {
+				$parent_id = $parent->id;
+			}
+
+			return $parent_id;
+		}
+
 		public static function wc_price( $price ) {
 			if ( self::is_wc_version_gte_2_1() ) {
 				return wc_price( $price );
