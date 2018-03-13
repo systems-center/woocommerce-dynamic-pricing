@@ -360,7 +360,10 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 
 	protected function calculate_bulk_adjusted_price( $cart_item, $price, $rule, $q ) {
 		$result       = false;
+
+		$amount       = apply_filters( 'woocommerce_dynamic_pricing_get_rule_amount', $rule['amount'], $rule, $cart_item, $this );
 		$num_decimals = apply_filters( 'woocommerce_dynamic_pricing_get_decimals', (int) get_option( 'woocommerce_price_num_decimals' ) );
+
 
 
 		if ( $rule['from'] == '*' ) {
@@ -374,22 +377,22 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 		if ( $q >= $rule['from'] && $q <= $rule['to'] ) {
 			switch ( $rule['type'] ) {
 				case 'price_discount':
-					$adjusted = floatval( $price ) - floatval( $rule['amount'] );
+					$adjusted = floatval( $price ) - floatval( $amount );
 					$result   = $adjusted >= 0 ? $adjusted : 0;
 					break;
 				case 'percentage_discount':
 
-					if ( $rule['amount'] >= 1 ) {
-						$rule['amount'] = $rule['amount'] / 100;
+					if ( $amount >= 1 ) {
+						$amount = $amount / 100;
 					}
 
-					$result = round( floatval( $price ) - ( floatval( $rule['amount'] ) * $price ), (int) $num_decimals );
+					$result = round( floatval( $price ) - ( floatval( $amount ) * $price ), (int) $num_decimals );
 					break;
 				case 'fixed_price':
 					if ( isset( $cart_item['_gform_total'] ) ) {
-						$amount = floatval( $rule['amount'] ) + floatval( $cart_item['_gform_total'] );
+						$amount = floatval( $amount ) + floatval( $cart_item['_gform_total'] );
 					} else {
-						$amount = floatval( $rule['amount'] );
+						$amount = floatval( $amount );
 					}
 
 					$result = round( $amount, (int) $num_decimals );

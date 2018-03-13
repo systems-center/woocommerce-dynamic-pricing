@@ -5,25 +5,25 @@
  * Woo: 18643:9a41775bb33843f52c93c922b0053986
  * Plugin URI: https://woocommerce.com/products/dynamic-pricing/
  * Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
- * Version: 3.1.3
+ * Version: 3.1.5
  * Author: Lucas Stark
- * Author URI: http://lucasstark.com
+ * Author URI: https://elementstark.com
  * Requires at least: 3.3
- * Tested up to: 4.9.1
+ * Tested up to: 4.9.4
  * Text Domain: woocommerce-dynamic-pricing
  * Domain Path: /i18n/languages/
- * Copyright: © 2009-2017 Lucas Stark.
+ * Copyright: © 2009-2018 Lucas Stark.
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * WC requires at least: 3.0.0
- * WC tested up to: 3.2.5
+ * WC tested up to: 3.3.1
  */
 
 
 /**
  * Required functions
  */
-if ( !function_exists( 'woothemes_queue_update' ) ) {
+if ( ! function_exists( 'woothemes_queue_update' ) ) {
 	require_once( 'woo-includes/woo-functions.php' );
 }
 
@@ -105,7 +105,7 @@ class WC_Dynamic_Pricing {
 		include 'classes/class-wc-dynamic-pricing-compatibility.php';
 
 
-		if ( !is_admin() || defined( 'DOING_AJAX' ) ) {
+		if ( ! is_admin() || defined( 'DOING_AJAX' ) ) {
 			//Include helper classes
 			include 'classes/class-wc-dynamic-pricing-context.php';
 			include 'classes/class-wc-dynamic-pricing-counter.php';
@@ -184,7 +184,6 @@ class WC_Dynamic_Pricing {
 			add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 0 );
 
 
-
 			add_filter( 'woocommerce_product_is_on_sale', array( $this, 'on_get_product_is_on_sale' ), 10, 2 );
 
 
@@ -224,14 +223,14 @@ class WC_Dynamic_Pricing {
 		$roles = array();
 		if ( is_user_logged_in() ) {
 			$user = new WP_User( get_current_user_id() );
-			if ( !empty( $user->roles ) && is_array( $user->roles ) ) {
+			if ( ! empty( $user->roles ) && is_array( $user->roles ) ) {
 				foreach ( $user->roles as $role ) {
 					$roles[ $role ] = $role;
 				}
 			}
 		}
 
-		if ( !empty( $roles ) ) {
+		if ( ! empty( $roles ) ) {
 			$session_id = implode( '', $roles );
 		} else {
 			$session_id = 'norole';
@@ -289,8 +288,8 @@ class WC_Dynamic_Pricing {
 
 	public function on_wp_loaded() {
 		// Force calculation of totals so that they are updated in mini-cart
-		if ( defined( 'WC_DOING_AJAX' ) && WC_DOING_AJAX && !empty( $_REQUEST['wc-ajax'] ) && ( $_REQUEST['wc-ajax'] === 'get_refreshed_fragments' || $_REQUEST['wc-ajax'] === 'add_to_cart' || $_REQUEST['wc-ajax'] == 'remove_from_cart' ) ) {
-			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version( '3.2.3' ) || WC_Dynamic_Pricing_Compatibility::is_wc_version( '3.2.2' ) ) {
+		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_lte( '3.3.0' ) ) {
+			if ( defined( 'WC_DOING_AJAX' ) && WC_DOING_AJAX && ! empty( $_REQUEST['wc-ajax'] ) && ( $_REQUEST['wc-ajax'] === 'get_refreshed_fragments' || $_REQUEST['wc-ajax'] === 'add_to_cart' || $_REQUEST['wc-ajax'] == 'remove_from_cart' ) ) {
 				WC()->session->set( 'cart_totals', null );
 			}
 		}
@@ -324,15 +323,15 @@ class WC_Dynamic_Pricing {
 
 		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
 
-			if ( !apply_filters( 'wc_dynamic_pricing_check_coupons', true ) ) {
+			if ( ! apply_filters( 'wc_dynamic_pricing_check_coupons', true ) ) {
 				return $valid;
 			}
 
-			if ( $coupon->get_exclude_sale_items() && isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
+			if ( $coupon->get_exclude_sale_items() && isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
 				$valid = false;
 			}
 		} else {
-			if ( $coupon->exclude_sale_items() && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
+			if ( $coupon->exclude_sale_items() && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
 				$valid = false;
 			}
 		}
@@ -351,12 +350,12 @@ class WC_Dynamic_Pricing {
 		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
 			if ( $coupon->get_exclude_sale_items() ) {
 
-				if ( !apply_filters( 'wc_dynamic_pricing_check_coupons', true ) ) {
+				if ( ! apply_filters( 'wc_dynamic_pricing_check_coupons', true ) ) {
 					return $valid;
 				}
 
 				foreach ( WC()->cart->get_cart() as $values ) {
-					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
+					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
 						return false;
 					}
 				}
@@ -364,7 +363,7 @@ class WC_Dynamic_Pricing {
 		} else {
 			if ( $coupon->exclude_sale_items() ) {
 				foreach ( WC()->cart->get_cart() as $values ) {
-					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && !empty( $values['discounts']['applied_discounts'] ) ) {
+					if ( isset( $values['discounts'] ) && isset( $values['discounts']['applied_discounts'] ) && ! empty( $values['discounts']['applied_discounts'] ) ) {
 						return false;
 					}
 				}
@@ -436,7 +435,7 @@ class WC_Dynamic_Pricing {
 		}
 
 		// Force calculation of totals so that they are updated in mini-cart
-		if ( defined( 'WC_DOING_AJAX' ) && WC_DOING_AJAX && !empty( $_REQUEST['wc-ajax'] ) && ( $_REQUEST['wc-ajax'] === 'get_refreshed_fragments' || $_REQUEST['wc-ajax'] === 'add_to_cart' || $_REQUEST['wc-ajax'] == 'remove_from_cart' ) ) {
+		if ( defined( 'WC_DOING_AJAX' ) && WC_DOING_AJAX && ! empty( $_REQUEST['wc-ajax'] ) && ( $_REQUEST['wc-ajax'] === 'get_refreshed_fragments' || $_REQUEST['wc-ajax'] === 'add_to_cart' || $_REQUEST['wc-ajax'] == 'remove_from_cart' ) ) {
 			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_lte( '3.2.1' ) ) {
 				$cart->subtotal = false;
 			}
@@ -504,11 +503,11 @@ class WC_Dynamic_Pricing {
 		//Cart items are discounted when loaded from session, check to see if the call to get_price is from a cart item,
 		//if so, return the price on the cart item as it currently is.
 		$cart_item = WC_Dynamic_Pricing_Context::instance()->get_cart_item_for_product( $_product );
-		if ( !$force_calculation && $cart_item ) {
+		if ( ! $force_calculation && $cart_item ) {
 
 			//If no discounts applied just return the price passed to us.
 			//This is to solve subscriptions passing the sign up fee though this filter.
-			if ( !isset( $cart_item['discounts'] ) ) {
+			if ( ! isset( $cart_item['discounts'] ) ) {
 				return $base_price;
 			}
 
@@ -533,7 +532,7 @@ class WC_Dynamic_Pricing {
 
 			if ( isset( $this->cached_adjustments[ $cache_id ] ) && $this->cached_adjustments[ $cache_id ] === false ) {
 				return $base_price;
-			} elseif ( isset( $this->cached_adjustments[ $cache_id ] ) && !empty( $this->cached_adjustments[ $cache_id ] ) ) {
+			} elseif ( isset( $this->cached_adjustments[ $cache_id ] ) && ! empty( $this->cached_adjustments[ $cache_id ] ) ) {
 				return $this->cached_adjustments[ $cache_id ];
 			}
 
@@ -542,7 +541,12 @@ class WC_Dynamic_Pricing {
 			$working_price      = $base_price;
 
 			$modules = apply_filters( 'wc_dynamic_pricing_load_modules', $this->modules );
+
+			$fake_cart_item = array( 'data' => $_product );
+
+
 			foreach ( $modules as $module ) {
+
 				if ( $module->module_type == 'simple' ) {
 					//Make sure we are using the price that was just discounted.
 
@@ -553,6 +557,10 @@ class WC_Dynamic_Pricing {
 						if ( $discount_price && $discount_price != $working_price ) {
 							$working_price      = $discount_price;
 							$adjustment_applied = true;
+
+							if ( ! apply_filters( 'woocommerce_dynamic_pricing_is_cumulative', true, $module->module_id, $fake_cart_item, '' ) ) {
+								break;
+							}
 						}
 
 					}
@@ -634,7 +642,7 @@ class WC_Dynamic_Pricing {
 		$tax_display_mode = get_option( 'woocommerce_tax_display_shop' );
 
 		$children = $product->get_children();
-		if ( isset( $children ) && !empty( $children ) ) {
+		if ( isset( $children ) && ! empty( $children ) ) {
 			foreach ( $children as $variation_id ) {
 				if ( $display ) {
 					$variation = wc_get_product( $variation_id );
@@ -688,7 +696,7 @@ class WC_Dynamic_Pricing {
 	 */
 	public function on_get_product_is_on_sale( $is_on_sale, $product ) {
 
-		if ( !apply_filters( 'wc_dynamic_pricing_flag_is_on_sale', true, $product ) ) {
+		if ( ! apply_filters( 'wc_dynamic_pricing_flag_is_on_sale', true, $product ) ) {
 			return $is_on_sale;
 		}
 
@@ -711,7 +719,7 @@ class WC_Dynamic_Pricing {
 
 			$diff = array_diff_assoc( $regular, $actual_prices );
 
-			if ( !empty( $diff ) ) {
+			if ( ! empty( $diff ) ) {
 				$is_on_sale = true;
 			}
 		} else {
@@ -741,7 +749,7 @@ class WC_Dynamic_Pricing {
 		}
 
 
-		if ( isset( WC()->cart->cart_contents[ $cart_item_key ] ) && !empty( WC()->cart->cart_contents[ $cart_item_key ] ) ) {
+		if ( isset( WC()->cart->cart_contents[ $cart_item_key ] ) && ! empty( WC()->cart->cart_contents[ $cart_item_key ] ) ) {
 
 
 			$_product = WC()->cart->cart_contents[ $cart_item_key ]['data'];
@@ -758,7 +766,7 @@ class WC_Dynamic_Pricing {
 				WC()->cart->cart_contents[ $cart_item_key ]['data']->base_price = $adjusted_price;
 			}
 
-			if ( !isset( WC()->cart->cart_contents[ $cart_item_key ]['discounts'] ) ) {
+			if ( ! isset( WC()->cart->cart_contents[ $cart_item_key ]['discounts'] ) ) {
 
 				$discount_data                                           = array(
 					'by'                => array( $module ),
@@ -833,7 +841,7 @@ class WC_Dynamic_Pricing {
 function wc_dynamic_pricing_is_groups_active() {
 	$result = false;
 	$result = in_array( 'groups/groups.php', (array) get_option( 'active_plugins', array() ) );
-	if ( !$result && is_multisite() ) {
+	if ( ! $result && is_multisite() ) {
 		$plugins = get_site_option( 'active_sitewide_plugins' );
 		$result  = isset( $plugins['groups/groups.php'] );
 	}
@@ -844,7 +852,7 @@ function wc_dynamic_pricing_is_groups_active() {
 function wc_dynamic_pricing_is_memberships_active() {
 	$result = false;
 	$result = in_array( 'woocommerce-memberships/woocommerce-memberships.php', (array) get_option( 'active_plugins', array() ) );
-	if ( !$result && is_multisite() ) {
+	if ( ! $result && is_multisite() ) {
 		$plugins = get_site_option( 'active_sitewide_plugins' );
 		$result  = isset( $plugins['woocommerce-memberships/woocommerce-memberships.php'] );
 	}
@@ -855,7 +863,7 @@ function wc_dynamic_pricing_is_memberships_active() {
 function wc_dynamic_pricing_is_brands_active() {
 	$result = false;
 	$result = in_array( 'woocommerce-brands/woocommerce-brands.php', (array) get_option( 'active_plugins', array() ) );
-	if ( !$result && is_multisite() ) {
+	if ( ! $result && is_multisite() ) {
 		$plugins = get_site_option( 'active_sitewide_plugins' );
 		$result  = isset( $plugins['woocommerce-brands/woocommerce-brands.php'] );
 	}

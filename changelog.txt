@@ -1,4 +1,14 @@
 *** Dynamic Pricing Changelog ***
+2018.02.09 - version 3.1.5
+    * Fix:  Non repeating advanced product special offer rules calculations when the Receive quantity is larger than the cart item quantity.
+    * Update:  Check cart exists in context tracker before use.
+    * Fix:  Fix issue with mini cart again for WC 3.3.1
+
+2018.02.01 - version 3.1.4
+    * Fix:  Fix category counter for WC < 3.0
+    * Fix:  Check for a valid cart item in the counter before counting categories.
+    * Fix:  Fix Advanced Category Rules where decimal separator is a comma.
+    * Update: Update tested to WC 3.3.0, WP 4.9.2, copy @ 2018
 
 2017.11.22 - version 3.1.3
     * Fix:  Check product exists before attempting to load pricing rules.
