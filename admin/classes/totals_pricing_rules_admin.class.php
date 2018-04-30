@@ -203,7 +203,7 @@ class woocommerce_totals_pricing_rules_admin {
 				<select class="pricing_rule_apply_to" id="pricing_rule_apply_to_<?php echo $name . '_' . $condition_index; ?>" name="pricing_rules[<?php echo $name; ?>][conditions][<?php echo $condition_index; ?>][args][applies_to]">
 					<option <?php selected( 'everyone', $condition['args']['applies_to'] ); ?> value="everyone"><?php _e('Everyone', 'woocommerce-dynamic-pricing'); ?></option>
 					<option <?php selected( 'unauthenticated', $condition['args']['applies_to'] ); ?> value="unauthenticated"><?php _e( 'Guests', 'woocommerce-dynamic-pricing' ); ?></option>
-					<option <?php selected( 'roles', $condition['args']['applies_to'] ); ?> value="roles"><?php _e('>Specific Roles', 'woocommerce-dynamic-pricing'); ?></option>
+					<option <?php selected( 'roles', $condition['args']['applies_to'] ); ?> value="roles"><?php _e('Specific Roles', 'woocommerce-dynamic-pricing'); ?></option>
 					<?php do_action( 'woocommerce_dynamic_pricing_applies_to_options', 'advanced_totals', $condition, $name, $condition_index ); ?>
 
 				</select>
