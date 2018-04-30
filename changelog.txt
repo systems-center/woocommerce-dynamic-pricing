@@ -1,4 +1,10 @@
 *** Dynamic Pricing Changelog ***
+2018.04.25 - version 3.1.6
+    * Fix:  Fix issue where prices were not discounted in the shop for Variable Subscription products.
+    * Update:  Add filter to disable cumulative simple rules.  add_filter('woocommerce_dynamic_pricing_is_cumulative', '__return_false');
+    * Update:  Skip cached prices when $force_calculation is passed into on_get_price();
+    * Update:  Don't preform tax calculations on fixed price adjustments, WooCommerce already does the calculations for us.
+
 2018.02.09 - version 3.1.5
     * Fix:  Non repeating advanced product special offer rules calculations when the Receive quantity is larger than the cart item quantity.
     * Update:  Check cart exists in context tracker before use.

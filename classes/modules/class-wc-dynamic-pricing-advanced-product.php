@@ -419,7 +419,7 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 				break;
 		}
 
-		return $quantity;
+		return apply_filters('woocommerce_dynamic_pricing_count_categories_for_cart_item', $quantity, $cart_item, $collector);
 	}
 
 }
