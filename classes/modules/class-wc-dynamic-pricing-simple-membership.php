@@ -188,7 +188,7 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 
 		//Need to process product rules that might have a 0 based quantity.
 
-		if ( $_product->get_type() == 'variation' ) {
+		if ( $_product->get_type() == 'variation' || $_product->get_type() == 'subscription_variation' ) {
 			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
 				if ( ! isset( $this->_loaded_product_rules[ $_product->get_parent_id() ] ) ) {
 					$pricing_rule_sets                                         = apply_filters( 'dynamic_pricing_product_rules', WC_Dynamic_Pricing_Compatibility::get_product_meta( wc_get_product( $_product->get_parent_id() ), '_pricing_rules' ) );
@@ -298,7 +298,8 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 		if ( $process_discounts ) {
 			if ( ! $this->is_cumulative( $fake_cart_item, false ) ) {
 
-				if ( get_class( $_product ) == 'WC_Product' && $_product->is_type( 'variable' ) && $lowest_price ) {
+				$product_class = get_class( $_product );
+				if ( $product_class == 'WC_Product' && $_product->is_type( 'variable' ) && $lowest_price ) {
 					return $lowest_price;
 				} elseif ( $applied_rule ) {
 					return $this->get_adjusted_price_by_product_rule( $applied_rule, $a_working_price, $_product, $additional_price );
@@ -369,8 +370,8 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 						$amount += floatval( $additional_price );
 					}
 					$fixed_price = round( $amount, (int) $num_decimals );
-					$result      = $tax_display_mode == 'incl' ? wc_get_price_including_tax( $_product, array( 'price' => $fixed_price ) ) : wc_get_price_excluding_tax( $_product, array( 'price' => $fixed_price ) );
-
+					//$result      = $tax_display_mode == 'incl' ? wc_get_price_including_tax( $_product, array( 'price' => $fixed_price ) ) : wc_get_price_excluding_tax( $_product, array( 'price' => $fixed_price ) );
+					$result = $fixed_price;
 					break;
 				default:
 					$result = false;

@@ -12,16 +12,19 @@ class woocommerce_product_pricing_rules_admin {
 		if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_3() ) :
 			?>
             <li class="pricing_tab dynamic_pricing_options dynamic_pricing_options_23">
-                <a href="#dynamic_pricing_data"><span><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></span></a></li>
+                <a href="#dynamic_pricing_data"><span><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></span></a>
+            </li>
 
 		<?php elseif ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_1() ) : ?>
             <li class="pricing_tab dynamic_pricing_options dynamic_pricing_options_21">
-                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></a></li>
+                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></a>
+            </li>
 		<?php else : ?>
             <li class="pricing_tab dynamic_pricing_options">
-                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></a></li>
+                <a href="#dynamic_pricing_data"><?php _e( 'Dynamic Pricing', 'woocommerce-dynamic-pricing' ); ?></a>
+            </li>
 
-			<?php
+		<?php
 		endif;
 	}
 
@@ -29,6 +32,7 @@ class woocommerce_product_pricing_rules_admin {
 		global $post;
 		$product           = wc_get_product( $post->ID );
 		$pricing_rule_sets = WC_Dynamic_Pricing_Compatibility::get_product_meta( $product, '_pricing_rules' );
+		$pricing_rule_sets = ! empty( $pricing_rule_sets ) ? $pricing_rule_sets : array();
 		?>
         <div id="dynamic_pricing_data" class="panel woocommerce_options_panel">
             <div id="woocommerce-pricing-rules-wrap" data-setindex="<?php echo count( $pricing_rule_sets ); ?>">
@@ -319,7 +323,7 @@ class woocommerce_product_pricing_rules_admin {
 			return;
 		}
 
-		$product = wc_get_product($post_id);
+		$product = wc_get_product( $post_id );
 
 		if ( ! $product->has_child() ) {
 			return;
@@ -605,9 +609,9 @@ class woocommerce_product_pricing_rules_admin {
                     html += '</td>';
                     html += '<td>';
                     html += '<select id="pricing_rule_type_value_' + name + '_' + $index + '" name="pricing_rules[' + name + '][rules][' + $index + '][type]">';
-                    html += '<option value="price_discount"><?php _e('Price Discount' ,'woocommerce-dynamic-pricing'); ?> </option>';
-                    html += '<option value="percentage_discount"><?php _e('Percentage Discount', 'woocommerce-dynamic-pricing'); ?></option>';
-                    html += '<option value="fixed_price"><?php _e('Fixed Price', 'woocommerce-dynamic-pricing'); ; ?></option>';
+                    html += '<option value="price_discount"><?php _e( 'Price Discount', 'woocommerce-dynamic-pricing' ); ?> </option>';
+                    html += '<option value="percentage_discount"><?php _e( 'Percentage Discount', 'woocommerce-dynamic-pricing' ); ?></option>';
+                    html += '<option value="fixed_price"><?php _e( 'Fixed Price', 'woocommerce-dynamic-pricing' ); ; ?></option>';
                     html += '</select>';
                     html += '</td>';
                     html += '<td>';
@@ -638,9 +642,9 @@ class woocommerce_product_pricing_rules_admin {
                     html += '</td>';
                     html += '<td>';
                     html += '<select name="pricing_rules[' + name + '][blockrules][' + $index + '][type]">';
-                    html += '<option value="price_discount"><?php _e('Price Discount', 'woocommerce-dynamic-pricing'); ?></option>';
-                    html += '<option value="percentage_discount"><?php _e('Percentage Discount', 'woocommerce-dynamic-pricing'); ?></option>';
-                    html += '<option value="fixed_price"><?php _e('Fixed Price', 'woocommerce-dynamic-pricing'); ?></option>';
+                    html += '<option value="price_discount"><?php _e( 'Price Discount', 'woocommerce-dynamic-pricing' ); ?></option>';
+                    html += '<option value="percentage_discount"><?php _e( 'Percentage Discount', 'woocommerce-dynamic-pricing' ); ?></option>';
+                    html += '<option value="fixed_price"><?php _e( 'Fixed Price', 'woocommerce-dynamic-pricing' ); ?></option>';
                     html += '</select>';
                     html += '</td>';
                     html += '<td>';
@@ -648,8 +652,8 @@ class woocommerce_product_pricing_rules_admin {
                     html += '</td>';
                     html += '<td>';
                     html += '<select name="pricing_rules[' + name + '][blockrules][' + $index + '][repeating]">';
-                    html += '<option value="no"><?php _e('No', 'woocommerce-dynamic-pricing'); ?></option>';
-                    html += '<option value="yes"><?php _e('Yes','woocommercer-dynamic-pricing'); ?></option>';
+                    html += '<option value="no"><?php _e( 'No', 'woocommerce-dynamic-pricing' ); ?></option>';
+                    html += '<option value="yes"><?php _e( 'Yes', 'woocommercer-dynamic-pricing' ); ?></option>';
                     html += '</select>';
                     html += '</td>';
                     html += '<td width="48">';
@@ -663,7 +667,7 @@ class woocommerce_product_pricing_rules_admin {
                 }
 
                 function DeleteRule(index, name) {
-                    if (confirm("<?php _e('Are you sure you would like to remove this price adjustment?', 'woocommerce-dynamic-pricing'); ?>")) {
+                    if (confirm("<?php _e( 'Are you sure you would like to remove this price adjustment?', 'woocommerce-dynamic-pricing' ); ?>")) {
                         $('#pricing_rule_row_' + name + '_' + index).remove();
 
                         var $index = $('tbody tr', "#woocommerce-pricing-rules-table-" + name).length;
@@ -676,7 +680,7 @@ class woocommerce_product_pricing_rules_admin {
                 }
 
                 function DeleteBlockRule($tr, $table) {
-                    if (confirm("<?php _e('Are you sure you would like to remove this price adjustment?', 'woocommerce-dynamic-pricing'); ?>")) {
+                    if (confirm("<?php _e( 'Are you sure you would like to remove this price adjustment?', 'woocommerce-dynamic-pricing' ); ?>")) {
                         $tr.remove();
 
                         var count = $('tr', $table).length;
@@ -689,7 +693,7 @@ class woocommerce_product_pricing_rules_admin {
                 }
 
                 function DeleteRuleSet(name) {
-                    if (confirm("<?php _e('Are you sure you would like to remove this price set?', 'woocommerce-dynamic-pricing'); ?>")) {
+                    if (confirm("<?php _e( 'Are you sure you would like to remove this price set?', 'woocommerce-dynamic-pricing' ); ?>")) {
                         $('#woocommerce-pricing-ruleset-' + name).slideUp().remove();
                     }
                 }
