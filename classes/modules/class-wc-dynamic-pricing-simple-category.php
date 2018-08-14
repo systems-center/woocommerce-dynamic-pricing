@@ -211,6 +211,19 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 								}
 							}
 						}
+					} elseif ( $condition['args']['applies_to'] == 'groups' && isset( $condition['args']['groups'] ) && is_array( $condition['args']['groups'] ) ) {
+						if ( is_user_logged_in() && class_exists( 'Groups_User' ) ) {
+							$groups_user = new Groups_User( get_current_user_id() );
+							foreach ( $condition['args']['groups'] as $group ) {
+								$current_group = Groups_Group::read( $group );
+								if ( $current_group ) {
+									if ( Groups_User_Group::read( $groups_user->user->ID, $current_group->group_id ) ) {
+										$result = 1;
+										break;
+									}
+								}
+							}
+						}
 					}
 				}
 				break;
@@ -247,8 +260,7 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 
 								if ( ! $price_adjusted || $temp < $price_adjusted ) {
 									$price_adjusted   = $temp;
-									$applied_rule     = $rule;
-									$applied_rule_set = $pricing_rule_set;
+									return $price_adjusted;//Only process first rule, @since 3.1.7
 								}
 							}
 						}

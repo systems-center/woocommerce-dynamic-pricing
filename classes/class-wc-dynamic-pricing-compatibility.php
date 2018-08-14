@@ -475,6 +475,11 @@ if ( ! class_exists( 'WC_Dynamic_Pricing_Compatibility' ) ) :
 				if ( $product->is_type( 'variation' ) ) {
 					if ( ! isset( self::$_cached_category_ids[ $product->get_parent_id() ] ) ) {
 						$parent                                                  = wc_get_product( $product->get_parent_id() );
+
+						if (empty($parent)) {
+							return array();
+						}
+
 						self::$_cached_category_ids[ $product->get_parent_id() ] = $parent->get_category_ids();
 					}
 

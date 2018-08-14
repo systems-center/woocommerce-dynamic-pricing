@@ -57,8 +57,7 @@ class WC_Dynamic_Pricing_Advanced_Totals extends WC_Dynamic_Pricing_Advanced_Bas
 								$product = $cart_item['data'];
 								if ( $collector['type'] == 'cat' ) {
 									$process_discounts = false;
-									$terms             = $this->get_product_category_ids( $product );
-									if ( count( array_intersect( $targets, $terms ) ) > 0 ) {
+									if ( $this->is_applied_to_product( $product, $targets ) ) {
 										$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'advanced_totals', $this, $cart_item );
 									}
 								} else {
@@ -110,6 +109,18 @@ class WC_Dynamic_Pricing_Advanced_Totals extends WC_Dynamic_Pricing_Advanced_Bas
 		}
 	}
 
+	private function is_applied_to_product( $product, $targets ) {
+		if ( is_admin() && !is_ajax() ) {
+			return false;
+		}
+
+		$terms = $this->get_product_category_ids( $product );
+
+		$process_discounts =  count( array_intersect( $targets, $terms ) ) > 0;
+
+		return apply_filters( 'woocommerce_dynamic_pricing_is_applied_to', $process_discounts, $product, $this->module_id, $this, $targets );
+	}
+
 	private function get_cart_total( $set ) {
 		global $woocommerce;
 		$collector = $set->get_collector();
@@ -122,8 +133,7 @@ class WC_Dynamic_Pricing_Advanced_Totals extends WC_Dynamic_Pricing_Advanced_Bas
 					return 0;
 				}
 
-				$terms = $this->get_product_category_ids( $product );
-				if ( count( array_intersect( $collector['args']['cats'], $terms ) ) > 0 ) {
+				if ( $this->is_applied_to_product( $product, $collector['args']['cats'] ) ) {
 
 					$q = $cart_item['quantity'] ? $cart_item['quantity'] : 1;
 
