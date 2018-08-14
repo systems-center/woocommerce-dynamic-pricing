@@ -4,19 +4,19 @@
  * Plugin Name: WooCommerce Dynamic Pricing
  * Woo: 18643:9a41775bb33843f52c93c922b0053986
  * Plugin URI: https://woocommerce.com/products/dynamic-pricing/
- * Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members. For WooCommerce 1.4+
- * Version: 3.1.6
+ * Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members.
+ * Version: 3.1.7
  * Author: Lucas Stark
  * Author URI: https://elementstark.com
  * Requires at least: 3.3
- * Tested up to: 4.9.4
+ * Tested up to: 4.9.8
  * Text Domain: woocommerce-dynamic-pricing
  * Domain Path: /i18n/languages/
  * Copyright: © 2009-2018 Lucas Stark.
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * WC requires at least: 3.0.0
- * WC tested up to: 3.3.5
+ * WC tested up to: 3.4.4
  */
 
 
@@ -98,6 +98,12 @@ class WC_Dynamic_Pricing {
 		if ( wc_dynamic_pricing_is_groups_active() ) {
 			include 'integrations/groups/groups.php';
 		}
+
+		if ( wc_dynamic_pricing_is_memberships_active() ) {
+			include 'integrations/memberships/memberships.php';
+		}
+
+
 
 		//Paypal express
 		include 'integrations/paypal-express.php';
@@ -434,7 +440,7 @@ class WC_Dynamic_Pricing {
 
 
 		//Sort the cart so that the lowest priced item is discounted when using block rules.
-		uasort( $sorted_cart, 'WC_Dynamic_Pricing_Cart_Query::sort_by_price' );
+		uasort( $sorted_cart, 'WC_Dynamic_Pricing_Cart_Query::sort_by_price_desc' );
 
 		$modules = apply_filters( 'wc_dynamic_pricing_load_modules', $this->modules );
 		foreach ( $modules as $module ) {
@@ -505,6 +511,14 @@ class WC_Dynamic_Pricing {
 		if ( class_exists( 'WCS_ATT_Product' ) && WCS_ATT_Product::is_subscription( $_product ) ) {
 			return $base_price;
 		}
+
+		/*
+		if (!apply_filters('wc_dynamic_pricing_get_use_sale_price', true)) {
+			if ( $_product->is_on_sale( 'edit' ) && $base_price == $_product->get_sale_price() ) {
+				$base_price = $_product->get_regular_price();
+			}
+		}
+		*/
 
 		$result_price = $base_price;
 		//Cart items are discounted when loaded from session, check to see if the call to get_price is from a cart item,

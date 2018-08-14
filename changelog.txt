@@ -1,4 +1,10 @@
 *** Dynamic Pricing Changelog ***
+2018.08.03 - version 3.1.7
+    * Update: Include 0 based pricing for advanced category rules when using Groups.
+    * Fix:  Fix issue where Mix and Match product children product titles were incorrectly being set to the parent name.
+    * New:  Allow WooCommerce Memberships to be used for advanced pricing rules, "Applies To".
+    * Fix:  Double check a variations parent exists before getting it's categories.
+
 2018.04.25 - version 3.1.6
     * Fix:  Fix issue where prices were not discounted in the shop for Variable Subscription products.
     * Update:  Add filter to disable cumulative simple rules.  add_filter('woocommerce_dynamic_pricing_is_cumulative', '__return_false');

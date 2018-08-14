@@ -158,6 +158,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 		$process_discounts = false;
 		if ( ( isset( $this->available_rulesets ) && count( $this->available_rulesets ) > 0 ) || isset( $this->available_advanced_rulesets ) && count( $this->available_advanced_rulesets ) ) {
+			$cat_id = apply_filters( 'wpml_object_id', $cat_id, $this->taxonomy, TRUE  );
 			if ( $cat_id ) {
 				$process_discounts = is_object_in_term( $_product->get_id(), $this->taxonomy, $cat_id );
 			}

@@ -40,6 +40,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 
 			foreach ( $temp_cart as $cart_item_key => $values ) {
 				$temp_cart[ $cart_item_key ]['available_quantity'] = $values['quantity'];
+				$temp_cart[ $cart_item_key ]['has_special_offers'] = false;
 			}
 
 			//Process block discounts first
@@ -52,7 +53,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 
 				//check if this set is valid for the current user;
 				$is_valid_for_user = $set->is_valid_for_user();
-				if ( !( $is_valid_for_user ) ) {
+				if ( ! ( $is_valid_for_user ) ) {
 					continue;
 				}
 
@@ -156,6 +157,10 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 					}
 
 					foreach ( $temp_cart as $cart_item_key => $ctitem ) {
+						if ( isset( $ctitem['has_special_offers'] ) && $ctitem['has_special_offers'] ) {
+							continue;
+						}
+
 						$product = $ctitem['data'];
 
 						$price_adjusted = false;
@@ -169,7 +174,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 						}
 
 						$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $ctitem['data'], 'advanced_category', $this, $ctitem );
-						if ( !$process_discounts ) {
+						if ( ! $process_discounts ) {
 							continue;
 						}
 
@@ -187,6 +192,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 							}
 
 							if ( $price_adjusted !== false && floatval( $original_price ) != floatval( $price_adjusted ) ) {
+								$temp_cart[ $cart_item_key ]['has_special_offers'] = true;
 								WC_Dynamic_Pricing::apply_cart_item_adjustment( $cart_item_key, $original_price, $price_adjusted, 'advanced_category', $set_id );
 							}
 						}
@@ -253,14 +259,14 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 	 * @return array|bool
 	 */
 	public function get_bulk_cart_item_adjusted_price_by_adjustment_set( $adjustment_set, $cart_item, $cart_item_key, $original_price_override = false ) {
-		if ( !$adjustment_set->is_valid_for_user() ) {
+		if ( ! $adjustment_set->is_valid_for_user() ) {
 			return false;
 		}
 
 		$product = $cart_item['data'];
 
 		$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'advanced_category', $this, $cart_item );
-		if ( !$process_discounts ) {
+		if ( ! $process_discounts ) {
 			return false;
 		}
 
@@ -359,11 +365,10 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 	}
 
 	protected function calculate_bulk_adjusted_price( $cart_item, $price, $rule, $q ) {
-		$result       = false;
+		$result = false;
 
 		$amount       = apply_filters( 'woocommerce_dynamic_pricing_get_rule_amount', $rule['amount'], $rule, $cart_item, $this );
 		$num_decimals = apply_filters( 'woocommerce_dynamic_pricing_get_decimals', (int) get_option( 'woocommerce_price_num_decimals' ) );
-
 
 
 		if ( $rule['from'] == '*' ) {
@@ -430,7 +435,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 	 */
 	public function get_adjustment_sets_for_product( $product ) {
 
-		if ( !is_object( $product ) ) {
+		if ( ! is_object( $product ) ) {
 			return false;
 		}
 
@@ -482,8 +487,8 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 
 		$sets = array();
 		foreach ( $cart_item_sets as $adjustment_set ) {
-			if ( !$this->is_cumulative( $cart_item, $cart_item_key ) ) {
-				if ( !$this->is_item_discounted( $cart_item, $cart_item_key ) ) {
+			if ( ! $this->is_cumulative( $cart_item, $cart_item_key ) ) {
+				if ( ! $this->is_item_discounted( $cart_item, $cart_item_key ) ) {
 					$sets[ $adjustment_set->set_id ] = $adjustment_set;
 				}
 			} else {
