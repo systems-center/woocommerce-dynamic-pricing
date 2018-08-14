@@ -107,17 +107,17 @@ class woocommerce_product_pricing_rules_admin {
 					?>
                 </div>
 
-                <div id="woocommerce-pricing-variations-<?php echo $name; ?>" class="section">
-					<?php
-					$variation_index = 0;
-					if ( is_array( $variation_rules ) && count( $variation_rules ) > 0 ) {
-						$this->create_variation_selector( $variation_rules, $name );
-					} else {
-						$product_cats = array();
-						$this->create_variation_selector( null, $name );
-					}
-					?>
-                </div>
+
+				<?php
+				$variation_index = 0;
+				if ( is_array( $variation_rules ) && count( $variation_rules ) > 0 ) {
+					$this->create_variation_selector( $variation_rules, $name );
+				} else {
+					$product_cats = array();
+					$this->create_variation_selector( null, $name );
+				}
+				?>
+
 
                 <div id="woocommerce-pricing-mode-<?php echo $name; ?>" class="section">
                     <label for="pricing_ruleset_mode_value_<?php echo $name . '_0'; ?>"><?php _e( 'Rule Processing Mode', 'woocommerce-dynamic-pricing' ); ?></label>
@@ -325,42 +325,44 @@ class woocommerce_product_pricing_rules_admin {
 
 		$product = wc_get_product( $post_id );
 
-		if ( ! $product->has_child() ) {
-			return;
+		if ( ! $product->is_type( 'variable' ) ) {
+            return;
 		}
 
 		$all_variations = $product->get_children();
 		$div_style      = ( $condition['args']['type'] != 'variations' ) ? 'display:none;' : '';
 		?>
 
-        <div>
-            <label for="pricing_rule_variations_<?php echo $name; ?>"><?php _e( 'Product / Variations:', 'woocommerce-dynamic-pricing' ); ?></label>
-            <select title="<?php _e( 'Choose what you would like to apply this pricing rule set to', 'woocommerce-dynamic-pricing' ); ?>" class="pricing_rule_variations" id="pricing_rule_variations_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][variation_rules][args][type]">
-                <option <?php selected( 'product', $condition['args']['type'] ); ?> value="product"><?php _e( 'All Variations', 'woocommerce-dynamic-pricing' ); ?></option>
-                <option <?php selected( 'variations', $condition['args']['type'] ); ?> value="variations"><?php _e( 'Specific Variations', 'woocommerce-dynamic-pricing' ); ?></option>
-            </select>
+        <div id="woocommerce-pricing-variations-<?php echo $name; ?>" class="section">
+            <div>
+                <label for="pricing_rule_variations_<?php echo $name; ?>"><?php _e( 'Product / Variations:', 'woocommerce-dynamic-pricing' ); ?></label>
+                <select title="<?php _e( 'Choose what you would like to apply this pricing rule set to', 'woocommerce-dynamic-pricing' ); ?>" class="pricing_rule_variations" id="pricing_rule_variations_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][variation_rules][args][type]">
+                    <option <?php selected( 'product', $condition['args']['type'] ); ?> value="product"><?php _e( 'All Variations', 'woocommerce-dynamic-pricing' ); ?></option>
+                    <option <?php selected( 'variations', $condition['args']['type'] ); ?> value="variations"><?php _e( 'Specific Variations', 'woocommerce-dynamic-pricing' ); ?></option>
+                </select>
 
-            <div class="variations" style="<?php echo $div_style; ?>">
-				<?php sort( $all_variations ); ?>
-				<?php $chunks = array_chunk( $all_variations, ceil( count( $all_variations ) / 3 ), true ); ?>
+                <div class="variations" style="<?php echo $div_style; ?>">
+					<?php sort( $all_variations ); ?>
+					<?php $chunks = array_chunk( $all_variations, ceil( count( $all_variations ) / 3 ), true ); ?>
 
-				<?php foreach ( $chunks as $chunk ) : ?>
+					<?php foreach ( $chunks as $chunk ) : ?>
 
-                    <ul class="list-column">
-						<?php foreach ( $chunk as $variation_id ) : ?>
-							<?php $variation_object = new WC_Product_Variation( $variation_id ); ?>
-							<?php $variation_checked = ( isset( $condition['args']['variations'] ) && is_array( $condition['args']['variations'] ) && in_array( $variation_id, $condition['args']['variations'] ) ) ? 'checked="checked"' : ''; ?>
-                            <li>
-                                <label for="variation_<?php echo $variation_id; ?>_<?php echo $name; ?>" class="selectit">
-                                    <input <?php echo $variation_checked; ?> type="checkbox" id="variation_<?php echo $variation_id; ?>_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][variation_rules][args][variations][]" value="<?php echo $variation_id; ?>"/><?php _e( 'Variation ID:', 'woocommerce-dynamic-pricing' ); ?> <?php echo $variation_id; ?>
-                                </label>
-                            </li>
-						<?php endforeach; ?>
-                    </ul>
-				<?php endforeach; ?>
+                        <ul class="list-column">
+							<?php foreach ( $chunk as $variation_id ) : ?>
+								<?php $variation_object = new WC_Product_Variation( $variation_id ); ?>
+								<?php $variation_checked = ( isset( $condition['args']['variations'] ) && is_array( $condition['args']['variations'] ) && in_array( $variation_id, $condition['args']['variations'] ) ) ? 'checked="checked"' : ''; ?>
+                                <li>
+                                    <label for="variation_<?php echo $variation_id; ?>_<?php echo $name; ?>" class="selectit">
+                                        <input <?php echo $variation_checked; ?> type="checkbox" id="variation_<?php echo $variation_id; ?>_<?php echo $name; ?>" name="pricing_rules[<?php echo $name; ?>][variation_rules][args][variations][]" value="<?php echo $variation_id; ?>"/><?php _e( 'Variation ID:', 'woocommerce-dynamic-pricing' ); ?> <?php echo $variation_id; ?>
+                                    </label>
+                                </li>
+							<?php endforeach; ?>
+                        </ul>
+					<?php endforeach; ?>
 
+                </div>
+                <div class="clear"></div>
             </div>
-            <div class="clear"></div>
         </div>
 		<?php
 	}

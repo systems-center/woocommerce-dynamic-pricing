@@ -6,6 +6,7 @@ class woocommerce_store_pricing_rules_admin {
 	public $membership_admin;
 	public $totals_admin;
 	public $group_admin;
+	public $woocommerce_memberships_admin;
 
 	public $taxonomy_admins = array();
 
@@ -13,6 +14,7 @@ class woocommerce_store_pricing_rules_admin {
 
 		$this->category_admin                   = new woocommerce_category_pricing_rules_admin();
 		$this->membership_admin                 = new woocommerce_membership_pricing_rules_admin();
+		//$this->woocommerce_memberships_admin    = new woocommerce_woocommerce_memberships_pricing_rules_admin();
 		$this->group_admin                      = new woocommerce_group_pricing_rules_admin();
 		$this->totals_admin                     = new woocommerce_totals_pricing_rules_admin();
 		$this->taxonomy_admins['product_brand'] = new woocommerce_taxonomy_pricing_rules_admin( 'product_brand' );
@@ -149,6 +151,7 @@ class woocommerce_store_pricing_rules_admin {
 					);
 				}
 
+
 				foreach ( $tabs as $name => $value ) :
 
 
@@ -188,7 +191,7 @@ class woocommerce_store_pricing_rules_admin {
                 </ul><br class="clear"/><?php endif; ?>
 
 			<?php if ( isset( $tabs[ $current_tab ]['tabs'][ $current_view ] ) ) : ?>
-				<?php if ( !isset( $tabs[ $current_tab ]['tabs'][ $current_view ]['hide_title'] ) || $tabs[ $current_tab ]['tabs'][ $current_view ]['hide_title'] != true ) : ?>
+				<?php if ( ! isset( $tabs[ $current_tab ]['tabs'][ $current_view ]['hide_title'] ) || $tabs[ $current_tab ]['tabs'][ $current_view ]['hide_title'] != true ) : ?>
                     <div class="tab_top">
                         <h3 class="has-help"><?php echo $tabs[ $current_tab ]['tabs'][ $current_view ]['title']; ?></h3>
 						<?php if ( $tabs[ $current_tab ]['tabs'][ $current_view ]['description'] ) : ?>
@@ -286,15 +289,12 @@ class woocommerce_store_pricing_rules_admin {
 		) );
 
 
-
-
-
 		foreach ( $this->taxonomy_admins as $taxonomy => $handler ) {
 			if ( $taxonomy != 'product_brand' ) {
 
-			    $key = '_s_taxonomy_' . $taxonomy . '_pricing_rules';
+				$key = '_s_taxonomy_' . $taxonomy . '_pricing_rules';
 
-				register_setting( $key , $key, array(
+				register_setting( $key, $key, array(
 					$this,
 					'on_store_settings_validation'
 				) );
@@ -331,7 +331,7 @@ class woocommerce_store_pricing_rules_admin {
 
 	public function on_store_category_settings_validation( $data ) {
 
-		if ( !isset( $data['free_shipping'] ) ) {
+		if ( ! isset( $data['free_shipping'] ) ) {
 			$data['free_shipping'] = 'no';
 		}
 
@@ -372,7 +372,7 @@ class woocommerce_store_pricing_rules_admin {
 				} else {
 					$valid = true;
 					foreach ( $rule_set['rules'] as $rule ) {
-						if ( isset( $rule['adjust'] ) && !empty( $rule['adjust'] ) && isset( $rule['from'] ) && isset( $rule['amount'] ) && !empty( $rule['from'] ) && !empty( $rule['amount'] ) ) {
+						if ( isset( $rule['adjust'] ) && ! empty( $rule['adjust'] ) && isset( $rule['from'] ) && isset( $rule['amount'] ) && ! empty( $rule['from'] ) && ! empty( $rule['amount'] ) ) {
 
 							if ( $rule['from'] != '*' && $rule['adjust'] != '*' && intval( $rule['adjust'] ) < intval( $rule['from'] ) ) {
 								$valid   = $valid & false;
@@ -445,7 +445,7 @@ class woocommerce_store_pricing_rules_admin {
 				} else {
 					$valid = true;
 					foreach ( $rule_set['rules'] as $rule ) {
-						if ( isset( $rule['adjust'] ) && !empty( $rule['adjust'] ) && isset( $rule['from'] ) && isset( $rule['amount'] ) && !empty( $rule['from'] ) && !empty( $rule['amount'] ) ) {
+						if ( isset( $rule['adjust'] ) && ! empty( $rule['adjust'] ) && isset( $rule['from'] ) && isset( $rule['amount'] ) && ! empty( $rule['from'] ) && ! empty( $rule['amount'] ) ) {
 
 							if ( $rule['from'] != '*' && $rule['adjust'] != '*' && intval( $rule['adjust'] ) < intval( $rule['from'] ) ) {
 								$valid   = $valid & false;
@@ -497,7 +497,7 @@ class woocommerce_store_pricing_rules_admin {
 				$valid = true;
 
 				foreach ( $rule_set['rules'] as $rule ) {
-					if ( isset( $rule['to'] ) && !empty( $rule['to'] ) && isset( $rule['from'] ) && isset( $rule['amount'] ) && ( !empty( $rule['from'] ) || $rule['from'] === '0' ) && !empty( $rule['amount'] ) ) {
+					if ( isset( $rule['to'] ) && ! empty( $rule['to'] ) && isset( $rule['from'] ) && isset( $rule['amount'] ) && ( ! empty( $rule['from'] ) || $rule['from'] === '0' ) && ! empty( $rule['amount'] ) ) {
 
 						if ( $rule['from'] != '*' && $rule['to'] != '*' && intval( $rule['to'] ) < intval( $rule['from'] ) ) {
 							$valid   = $valid & false;
@@ -545,7 +545,7 @@ class woocommerce_store_pricing_rules_admin {
 	}
 
 	private function selected( $value, $compare, $arg = true ) {
-		if ( !$arg ) {
+		if ( ! $arg ) {
 			echo '';
 		} else if ( (string) $value == (string) $compare ) {
 			echo 'selected="selected"';
