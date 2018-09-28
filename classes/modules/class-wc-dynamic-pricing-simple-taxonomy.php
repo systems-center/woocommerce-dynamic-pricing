@@ -9,7 +9,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 			self::$instances = array();
 		}
 
-		if ( !isset( self::$instances[ $taxonomy ] ) ) {
+		if ( ! isset( self::$instances[ $taxonomy ] ) ) {
 			self::$instances[ $taxonomy ] = new WC_Dynamic_Pricing_Simple_Taxonomy( 'simple_taxonomy_' . $taxonomy, $taxonomy );
 		}
 
@@ -81,11 +81,11 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 					$to_date   = empty( $this->set_data['date_to'] ) ? false : strtotime( date_i18n( 'Y-m-d 00:00:00', strtotime( $this->set_data['date_to'] ), false ) );
 					$now       = current_time( 'timestamp' );
 
-					if ( $from_date && $to_date && !( $now >= $from_date && $now <= $to_date ) ) {
+					if ( $from_date && $to_date && ! ( $now >= $from_date && $now <= $to_date ) ) {
 						$execute_rules = false;
-					} elseif ( $from_date && !$to_date && !( $now >= $from_date ) ) {
+					} elseif ( $from_date && ! $to_date && ! ( $now >= $from_date ) ) {
 						$execute_rules = false;
-					} elseif ( $to_date && !$from_date && !( $now <= $to_date ) ) {
+					} elseif ( $to_date && ! $from_date && ! ( $now <= $to_date ) ) {
 						$execute_rules = false;
 					}
 				}
@@ -104,11 +104,11 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 			foreach ( $cart as $cart_item_key => $cart_item ) {
 				$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $cart_item['data'], 'simple_taxonomy_' . $this->taxonomy, $this, $cart_item );
-				if ( !$process_discounts ) {
+				if ( ! $process_discounts ) {
 					continue;
 				}
 
-				if ( !$this->is_cumulative( $cart_item, $cart_item_key ) ) {
+				if ( ! $this->is_cumulative( $cart_item, $cart_item_key ) ) {
 
 					if ( $this->is_item_discounted( $cart_item, $cart_item_key ) ) {
 						continue;
@@ -130,7 +130,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 						$temp = $this->get_adjusted_price( $rule, $original_price );
 
-						if ( !$price_adjusted || $temp < $price_adjusted ) {
+						if ( ! $price_adjusted || $temp < $price_adjusted ) {
 							$price_adjusted      = $temp;
 							$applied_rule        = $rule;
 							$applied_rule_set    = $pricing_rule_set;
@@ -147,7 +147,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 	}
 
 	public function is_applied_to_product( $p, $cat_id = false ) {
-		if ( is_admin() && !is_ajax() ) {
+		if ( is_admin() && !is_ajax() && apply_filters( 'woocommerce_dynamic_pricing_skip_admin', true ) ) {
 			return false;
 		}
 
@@ -158,7 +158,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 		$process_discounts = false;
 		if ( ( isset( $this->available_rulesets ) && count( $this->available_rulesets ) > 0 ) || isset( $this->available_advanced_rulesets ) && count( $this->available_advanced_rulesets ) ) {
-			$cat_id = apply_filters( 'wpml_object_id', $cat_id, $this->taxonomy, TRUE  );
+			$cat_id = apply_filters( 'wpml_object_id', $cat_id, $this->taxonomy, true );
 			if ( $cat_id ) {
 				$process_discounts = is_object_in_term( $_product->get_id(), $this->taxonomy, $cat_id );
 			}
@@ -205,7 +205,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 					if ( $condition['args']['applies_to'] == 'everyone' ) {
 						$result = 1;
 					} elseif ( $condition['args']['applies_to'] == 'unauthenticated' ) {
-						if ( !is_user_logged_in() ) {
+						if ( ! is_user_logged_in() ) {
 							$result = 1;
 						}
 					} elseif ( $condition['args']['applies_to'] == 'authenticated' ) {
@@ -240,7 +240,7 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 
 		if ( $rulesets && count( $rulesets ) ) {
 			foreach ( $rulesets as $set_id => $pricing_rule_set ) {
-				if ( !isset( $pricing_rule_set['mode'] ) || ( isset( $pricing_rule_set['mode'] ) && $pricing_rule_set['mode'] != 'block' ) ) {
+				if ( ! isset( $pricing_rule_set['mode'] ) || ( isset( $pricing_rule_set['mode'] ) && $pricing_rule_set['mode'] != 'block' ) ) {
 					$process_discounts = apply_filters( 'woocommerce_dynamic_pricing_process_product_discounts', true, $_product, 'simple_taxonomy_' . $this->taxonomy, $this, array( 'data' => $_product ) );
 					if ( $process_discounts ) {
 						//Grab targets from advanced category discounts so we properly show 0 based discounts for targets, not for the collector category values. 
@@ -248,14 +248,14 @@ class WC_Dynamic_Pricing_Simple_Taxonomy extends WC_Dynamic_Pricing_Simple_Base 
 						if ( $this->is_applied_to_product( $_product, $cats_to_check ) ) {
 							$rule = array_shift( $pricing_rule_set['rules'] );
 
-							if ( !isset( $rule['from'] ) ) {
+							if ( ! isset( $rule['from'] ) ) {
 								$rule['from'] = 0;
 							}
 
 							if ( $rule['from'] == '0' ) {
 								$temp = $this->get_adjusted_price( $rule, $working_price );
 
-								if ( !$price_adjusted || $temp < $price_adjusted ) {
+								if ( ! $price_adjusted || $temp < $price_adjusted ) {
 									$price_adjusted   = $temp;
 									$applied_rule     = $rule;
 									$applied_rule_set = $pricing_rule_set;

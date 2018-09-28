@@ -1,4 +1,13 @@
 *** Dynamic Pricing Changelog ***
+2018.09.18 - version 3.1.8
+    * Update:  Added an argument to the quantity collector filter, which now passes in the rule set.
+    * Update:  Properly sort cart items for discounting in ascending order.
+    * Update:  Use multiselect fields instead of checkboxes in Advanced Category Rules.
+    * Update:  Use multiselect fields instead of checkboxes in Advanced Product Rules.
+    * Update:  Use multiselect fields instead of checkboxes in Order Total Pricing.
+    * Update:  Use variation names instead of variation ID's only in Advanced Product Rules.
+    * Fix: Fix issue with the woocommerce_dynamic_pricing_count_categories_for_cart_item filter where the wrong cart item was being passed.
+
 2018.08.03 - version 3.1.7
     * Update: Include 0 based pricing for advanced category rules when using Groups.
     * Fix:  Fix issue where Mix and Match product children product titles were incorrectly being set to the parent name.
