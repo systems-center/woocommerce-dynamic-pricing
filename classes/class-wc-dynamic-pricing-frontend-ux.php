@@ -66,3 +66,5 @@ class WC_Dynamic_Pricing_FrontEnd_UX {
 	}
 
 }
+
+

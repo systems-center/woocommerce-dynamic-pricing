@@ -103,7 +103,7 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 		if ( is_array( $pricing_rules ) && sizeof( $pricing_rules ) > 0 ) {
 			foreach ( $pricing_rules as $rule ) {
 
-				$q = $this->get_quantity_to_compare( $cart_item, $collector );
+				$q = $this->get_quantity_to_compare( $cart_item, $collector, $set );
 
 				if ( $rule['from'] == '*' ) {
 					$rule['from'] = 0;
@@ -159,7 +159,7 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 		if ( is_array( $pricing_rules ) && sizeof( $pricing_rules ) > 0 ) {
 			foreach ( $pricing_rules as &$rule ) {
 
-				$q  = $this->get_quantity_to_compare( $cart_item, $collector );
+				$q  = $this->get_quantity_to_compare( $cart_item, $collector, $set );
 				$rq = 0; //required quantity to trigger the calculations
 
 				if ( $collector['type'] == 'cart_item' && $q <= $rule['from'] ) {
@@ -384,7 +384,7 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 		return $result;
 	}
 
-	protected function get_quantity_to_compare( $cart_item, $collector ) {
+	protected function get_quantity_to_compare( $cart_item, $collector, $set = null ) {
 		global $woocommerce_pricing, $woocommerce;
 		$quantity = 0;
 
@@ -397,10 +397,10 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 					$quantity = 0;
 					if ( isset( $collector['args'] ) && isset( $collector['args']['cats'] ) && is_array( $collector['args']['cats'] ) ) {
 						$temp_cart = WC_Dynamic_Pricing_Compatibility::WC()->cart->cart_contents;
-						foreach ( $temp_cart as $lck => $cart_item ) {
-							if ( is_object_in_term( $cart_item['product_id'], 'product_cat', $collector['args']['cats'] ) ) {
+						foreach ( $temp_cart as $lck => $check_cart_item ) {
+							if ( is_object_in_term( $check_cart_item['product_id'], 'product_cat', $collector['args']['cats'] ) ) {
 								if ( apply_filters( 'woocommerce_dynamic_pricing_count_categories_for_cart_item', true, $cart_item, $lck ) ) {
-									$quantity += (int) $cart_item['quantity'];
+									$quantity += (int) $check_cart_item['quantity'];
 								}
 							}
 						}
@@ -419,7 +419,7 @@ class WC_Dynamic_Pricing_Advanced_Product extends WC_Dynamic_Pricing_Advanced_Ba
 				break;
 		}
 
-		return apply_filters('woocommerce_dynamic_pricing_count_categories_for_cart_item', $quantity, $cart_item, $collector);
+		return apply_filters('woocommerce_dynamic_pricing_get_quantity_for_cart_item', $quantity, $cart_item, $collector, $set);
 	}
 
 }

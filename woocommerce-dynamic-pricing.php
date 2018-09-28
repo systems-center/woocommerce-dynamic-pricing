@@ -5,7 +5,7 @@
  * Woo: 18643:9a41775bb33843f52c93c922b0053986
  * Plugin URI: https://woocommerce.com/products/dynamic-pricing/
  * Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members.
- * Version: 3.1.7
+ * Version: 3.1.8
  * Author: Lucas Stark
  * Author URI: https://elementstark.com
  * Requires at least: 3.3
@@ -16,7 +16,7 @@
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * WC requires at least: 3.0.0
- * WC tested up to: 3.4.4
+ * WC tested up to: 3.4.5
  */
 
 
@@ -440,7 +440,7 @@ class WC_Dynamic_Pricing {
 
 
 		//Sort the cart so that the lowest priced item is discounted when using block rules.
-		uasort( $sorted_cart, 'WC_Dynamic_Pricing_Cart_Query::sort_by_price_desc' );
+		uasort( $sorted_cart, 'WC_Dynamic_Pricing_Cart_Query::sort_by_price' );
 
 		$modules = apply_filters( 'wc_dynamic_pricing_load_modules', $this->modules );
 		foreach ( $modules as $module ) {
@@ -521,31 +521,35 @@ class WC_Dynamic_Pricing {
 		*/
 
 		$result_price = $base_price;
-		//Cart items are discounted when loaded from session, check to see if the call to get_price is from a cart item,
-		//if so, return the price on the cart item as it currently is.
-		$cart_item = WC_Dynamic_Pricing_Context::instance()->get_cart_item_for_product( $_product );
-		if ( ! $force_calculation && $cart_item ) {
 
-			//If no discounts applied just return the price passed to us.
-			//This is to solve subscriptions passing the sign up fee though this filter.
-			if ( ! isset( $cart_item['discounts'] ) ) {
-				return $base_price;
+		if ( ! $force_calculation  ) {
+			//Cart items are discounted when loaded from session, check to see if the call to get_price is from a cart item,
+			//if so, return the price on the cart item as it currently is.
+			$cart_item = WC_Dynamic_Pricing_Context::instance()->get_cart_item_for_product( $_product );
+
+			if ($cart_item) {
+
+				//If no discounts applied just return the price passed to us.
+				//This is to solve subscriptions passing the sign up fee though this filter.
+				if ( ! isset( $cart_item['discounts'] ) ) {
+					return $base_price;
+				}
+
+
+				$this->remove_price_filters();
+
+				if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
+					$cart_price = $cart_item['data']->get_price( 'edit' );
+				} else {
+					//Use price directly since 3.0.8 so extensions do not re-filter this value.
+					//https://woothemes.zendesk.com/agent/tickets/564481
+					$cart_price = $cart_item['data']->price;
+				}
+
+				$this->add_price_filters();
+
+				return $cart_price;
 			}
-
-
-			$this->remove_price_filters();
-
-			if ( WC_Dynamic_Pricing_Compatibility::is_wc_version_gte_2_7() ) {
-				$cart_price = $cart_item['data']->get_price( 'edit' );
-			} else {
-				//Use price directly since 3.0.8 so extensions do not re-filter this value.
-				//https://woothemes.zendesk.com/agent/tickets/564481
-				$cart_price = $cart_item['data']->price;
-			}
-
-			$this->add_price_filters();
-
-			return $cart_price;
 		}
 
 		if ( is_object( $_product ) ) {

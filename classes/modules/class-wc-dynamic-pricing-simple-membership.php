@@ -98,9 +98,10 @@ class WC_Dynamic_Pricing_Simple_Membership extends WC_Dynamic_Pricing_Simple_Bas
 	}
 
 	public function is_applied_to_product( $_product ) {
-		if ( is_admin() && ! is_ajax() ) {
+		if ( is_admin() && !is_ajax() && apply_filters( 'woocommerce_dynamic_pricing_skip_admin', true ) ) {
 			return false;
 		}
+
 
 		return true; //all products are eligibile for the discount.  Only eligibile rulesets for this user have been loaded.
 	}
