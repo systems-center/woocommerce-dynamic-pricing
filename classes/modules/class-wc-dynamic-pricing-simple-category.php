@@ -139,9 +139,11 @@ class WC_Dynamic_Pricing_Simple_Category extends WC_Dynamic_Pricing_Simple_Base 
 	}
 
 	public function is_applied_to_product( $_product, $cat_id = false ) {
-		if ( is_admin() && ! is_ajax() ) {
+
+		if ( is_admin() && !is_ajax() && apply_filters( 'woocommerce_dynamic_pricing_skip_admin', true ) ) {
 			return false;
 		}
+
 
 		$cat_id = is_array( $cat_id ) ? $cat_id : array( $cat_id );
 
