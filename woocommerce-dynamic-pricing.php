@@ -5,7 +5,7 @@
  * Woo: 18643:9a41775bb33843f52c93c922b0053986
  * Plugin URI: https://woocommerce.com/products/dynamic-pricing/
  * Description: WooCommerce Dynamic Pricing lets you configure dynamic pricing rules for products, categories and members.
- * Version: 3.1.8
+ * Version: 3.1.10
  * Author: Lucas Stark
  * Author URI: https://elementstark.com
  * Requires at least: 3.3
@@ -16,7 +16,7 @@
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * WC requires at least: 3.0.0
- * WC tested up to: 3.4.5
+ * WC tested up to: 3.4.6
  */
 
 
@@ -104,7 +104,6 @@ class WC_Dynamic_Pricing {
 		}
 
 
-
 		//Paypal express
 		include 'integrations/paypal-express.php';
 		include 'integrations/woocommerce-product-bundles.php';
@@ -147,7 +146,7 @@ class WC_Dynamic_Pricing {
 		//Include the collectors.
 		include 'classes/collectors/class-wc-dynamic-pricing-collector.php';
 		include 'classes/collectors/class-wc-dynamic-pricing-collector-category.php';
-
+		include 'classes/collectors/class-wc-dynamic-pricing-collector-category-inclusive.php';
 
 		//Include the adjustment sets.
 		include 'classes/class-wc-dynamic-pricing-adjustment-set.php';
@@ -230,6 +229,7 @@ class WC_Dynamic_Pricing {
 	public function on_woocommerce_get_variation_prices_hash( $price_hash ) {
 
 		//Get a key based on role, since all rules use roles.
+		$result     = is_array( $price_hash ) ? $price_hash : array( $price_hash );
 		$session_id = null;
 
 		$roles = array();
@@ -248,9 +248,9 @@ class WC_Dynamic_Pricing {
 			$session_id = 'norole';
 		}
 
-		$price_hash[] = $session_id;
+		$result[] = $session_id;
 
-		return $price_hash;
+		return $result;
 
 	}
 
@@ -522,12 +522,12 @@ class WC_Dynamic_Pricing {
 
 		$result_price = $base_price;
 
-		if ( ! $force_calculation  ) {
+		if ( ! $force_calculation ) {
 			//Cart items are discounted when loaded from session, check to see if the call to get_price is from a cart item,
 			//if so, return the price on the cart item as it currently is.
 			$cart_item = WC_Dynamic_Pricing_Context::instance()->get_cart_item_for_product( $_product );
 
-			if ($cart_item) {
+			if ( $cart_item ) {
 
 				//If no discounts applied just return the price passed to us.
 				//This is to solve subscriptions passing the sign up fee though this filter.
@@ -555,7 +555,7 @@ class WC_Dynamic_Pricing {
 		if ( is_object( $_product ) ) {
 			$cache_id = $_product->get_id() . spl_object_hash( $_product );
 
-			if (!$force_calculation) {
+			if ( ! $force_calculation ) {
 				if ( isset( $this->cached_adjustments[ $cache_id ] ) && $this->cached_adjustments[ $cache_id ] === false ) {
 					return $base_price;
 				} elseif ( isset( $this->cached_adjustments[ $cache_id ] ) && ! empty( $this->cached_adjustments[ $cache_id ] ) ) {
@@ -595,13 +595,13 @@ class WC_Dynamic_Pricing {
 			}
 
 			if ( $adjustment_applied && $discount_price !== false && $discount_price != $base_price ) {
-				$result_price                          = $discount_price;
-				if (!$force_calculation) {
+				$result_price = $discount_price;
+				if ( ! $force_calculation ) {
 					$this->cached_adjustments[ $cache_id ] = $result_price;
 				}
 			} else {
-				$result_price                          = $base_price;
-				if (!$force_calculation) {
+				$result_price = $base_price;
+				if ( ! $force_calculation ) {
 					$this->cached_adjustments[ $cache_id ] = false;
 				}
 			}
