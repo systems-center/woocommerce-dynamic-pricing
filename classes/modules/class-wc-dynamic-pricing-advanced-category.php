@@ -258,7 +258,7 @@ class WC_Dynamic_Pricing_Advanced_Category extends WC_Dynamic_Pricing_Advanced_B
 	 *
 	 * @return array|bool
 	 */
-	public function get_bulk_cart_item_adjusted_price_by_adjustment_set( $adjustment_set, $cart_item, $cart_item_key, $original_price_override = false ) {
+	public function                                                                                             get_bulk_cart_item_adjusted_price_by_adjustment_set( $adjustment_set, $cart_item, $cart_item_key, $original_price_override = false ) {
 		if ( ! $adjustment_set->is_valid_for_user() ) {
 			return false;
 		}
