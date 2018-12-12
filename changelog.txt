@@ -1,4 +1,13 @@
 *** Dynamic Pricing Changelog ***
+2018.10.23 - version 3.1.10
+    * Update:  Check for null cart items in sorting function.  Should never happen unless a plugin or theme is incorrectly loading the cart.
+    * Update:  Tested to WC 3.5
+
+2018.10.08 - version 3.1.9
+    * New:  Included a new collector module to allow inclusive ( AND ) for advanced category rules.  Since this is a unusual use case a filter is needed to enable.
+        -- add_filter('wc_dynamic_pricing_get_collector_object', function($collector, $type) { return 'WC_Dynamic_Pricing_Collector_Category_Inclusive'; }, 10, 2);
+    * Fix:  Include check that categories have been selected before attempting count.
+
 2018.09.18 - version 3.1.8
     * Update:  Added an argument to the quantity collector filter, which now passes in the rule set.
     * Update:  Properly sort cart items for discounting in ascending order.

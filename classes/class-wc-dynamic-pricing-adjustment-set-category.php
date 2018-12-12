@@ -19,10 +19,15 @@ class WC_Dynamic_Pricing_Adjustment_Set_Category extends WC_Dynamic_Pricing_Adju
 		}
 
 		$this->targets = apply_filters( 'wc_dynamic_pricing_get_adjustment_set_targets', $targets, $this );
-		$this->is_valid_rule &= count( $this->targets ) > 0;
+		if ( $this->targets && is_array( $this->targets ) ) {
+			$this->is_valid_rule &= count( $this->targets ) > 0;
+		} else {
+			$this->is_valid_rule = false;
+		}
 
-		add_action( 'init', array($this, 'on_init'), 0 );
-		add_action( 'wc_dynamic_pricing_counter_updated', array($this, 'check_is_valid_rule') );
+
+		add_action( 'init', array( $this, 'on_init' ), 0 );
+		add_action( 'wc_dynamic_pricing_counter_updated', array( $this, 'check_is_valid_rule' ) );
 	}
 
 	public function on_init() {
@@ -42,7 +47,9 @@ class WC_Dynamic_Pricing_Adjustment_Set_Category extends WC_Dynamic_Pricing_Adju
 	 * @return WC_Dynamic_Pricing_Collector_Category
 	 */
 	public function get_collector_object() {
-		return new WC_Dynamic_Pricing_Collector_Category( $this->set_data['collector'] );
+		$collector_obj = apply_filters( 'wc_dynamic_pricing_get_collector_object', 'WC_Dynamic_Pricing_Collector_Category', 'category' );
+
+		return new $collector_obj( $this->set_data['collector'] );
 	}
 
 }
